@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Tetris</string>
+    <string name="setting">Setting</string>
+    <string name="high_score">High Score</string>
+    <string name="new_game">New Game</string>
 </resources>

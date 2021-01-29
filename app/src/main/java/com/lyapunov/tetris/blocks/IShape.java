@@ -1,4 +1,4 @@
 package com.lyapunov.tetris.blocks;
 
-public class IShape {
+public class IShape implements Shape {
 }

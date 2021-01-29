@@ -1,4 +1,4 @@
 package com.lyapunov.tetris.blocks;
 
-public class JShape {
+public class JShape implements Shape {
 }

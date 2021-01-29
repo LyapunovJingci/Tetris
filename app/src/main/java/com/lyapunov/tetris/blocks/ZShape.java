@@ -1,4 +1,4 @@
 package com.lyapunov.tetris.blocks;
 
-public class ZShape {
+public class ZShape implements Shape {
 }
