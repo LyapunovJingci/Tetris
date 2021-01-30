@@ -3,4 +3,8 @@
     <string name="setting">Setting</string>
     <string name="high_score">High Score</string>
     <string name="new_game">New Game</string>
+    <string name="score">Score</string>
+    <string name="lines">Lines</string>
+    <string name="_0">0</string>
+    <string name="next">Next</string>
 </resources>
