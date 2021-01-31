@@ -14,6 +14,11 @@ public class TShape implements Shape {
     }
 
     @Override
+    public int shapeCode() {
+        return T_SHAPE;
+    }
+
+    @Override
     public int matrixSize() {
         return 3;
     }

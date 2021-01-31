@@ -14,6 +14,11 @@ public class OShape implements Shape {
     }
 
     @Override
+    public int shapeCode() {
+        return O_SHAPE;
+    }
+
+    @Override
     public int matrixSize() {
         return 2;
     }

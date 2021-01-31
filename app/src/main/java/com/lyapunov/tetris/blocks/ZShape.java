@@ -14,6 +14,11 @@ public class ZShape implements Shape {
     }
 
     @Override
+    public int shapeCode() {
+        return Z_SHAPE;
+    }
+
+    @Override
     public int matrixSize() {
         return 3;
     }

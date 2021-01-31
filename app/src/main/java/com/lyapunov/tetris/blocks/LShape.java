@@ -14,6 +14,11 @@ public class LShape implements Shape {
     }
 
     @Override
+    public int shapeCode() {
+        return L_SHAPE;
+    }
+
+    @Override
     public int matrixSize() {
         return 3;
     }

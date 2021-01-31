@@ -14,6 +14,11 @@ public class JShape implements Shape {
     }
 
     @Override
+    public int shapeCode() {
+        return J_SHAPE;
+    }
+
+    @Override
     public int matrixSize() {
         return 3;
     }

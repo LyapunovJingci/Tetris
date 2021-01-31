@@ -9,11 +9,12 @@ public class BlockGenerator {
     public static BlockGenerator getBlockGenertor() {
         return blockGenertor;
     }
-    private Shape generateBlock() {
+    public Shape generateBlock() {
         //generate random number for block generation
-        int randomNumber = ThreadLocalRandom.current().nextInt(0, 8);
+        int randomNumber = ThreadLocalRandom.current().nextInt(1, 8);
         return BlockFactory.getBlockFactory().getShape(randomNumber);
     }
+
 
 
 }

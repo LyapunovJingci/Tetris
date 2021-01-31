@@ -14,6 +14,11 @@ public class SShape implements Shape {
     }
 
     @Override
+    public int shapeCode() {
+        return S_SHAPE;
+    }
+
+    @Override
     public int matrixSize() {
         return 3;
     }
