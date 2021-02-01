@@ -99,4 +99,68 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/board"
         app:layout_constraintTop_toBottomOf="@+id/Next" />
+
+    <ImageButton
+        android:id="@+id/upButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:backgroundTint="@color/primary"
+        android:elevation="5dp"
+        android:tint="@color/accent"
+        app:layout_constraintEnd_toEndOf="@+id/board"
+        app:layout_constraintStart_toStartOf="@+id/board"
+        app:layout_constraintTop_toBottomOf="@+id/board"
+        app:srcCompat="@drawable/ic_keyboard_arrow_up_black_24dp" />
+
+    <ImageButton
+        android:id="@+id/leftButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
+        android:elevation="5dp"
+        android:tint="@color/accent"
+        app:layout_constraintEnd_toStartOf="@+id/upButton"
+        app:layout_constraintTop_toBottomOf="@+id/upButton"
+        app:srcCompat="@drawable/ic_keyboard_arrow_left_black_24dp" />
+
+    <ImageButton
+        android:id="@+id/rightButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
+        android:elevation="5dp"
+        android:tint="@color/accent"
+        app:layout_constraintStart_toEndOf="@+id/upButton"
+        app:layout_constraintTop_toBottomOf="@+id/upButton"
+        app:srcCompat="@drawable/ic_keyboard_arrow_right_black_24dp" />
+
+    <ImageButton
+        android:id="@+id/downButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
+        android:elevation="5dp"
+        android:tint="@color/accent"
+        app:layout_constraintEnd_toStartOf="@+id/rightButton"
+        app:layout_constraintStart_toEndOf="@+id/leftButton"
+        app:layout_constraintTop_toBottomOf="@+id/rightButton"
+        app:srcCompat="@drawable/ic_keyboard_arrow_down_black_24dp" />
+
+    <ImageButton
+        android:id="@+id/rotateButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="160dp"
+        android:backgroundTint="@color/primary_var"
+        android:elevation="5dp"
+        android:scaleX="2"
+        android:scaleY="2"
+        android:tint="@color/accent"
+        app:layout_constraintEnd_toEndOf="@+id/next_board"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/next_board"
+        app:layout_constraintTop_toBottomOf="@+id/next_board"
+        app:srcCompat="@drawable/ic_rotate_left_black_24dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

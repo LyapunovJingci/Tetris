@@ -3,6 +3,7 @@ package com.lyapunov.tetris.components;
 import android.util.Log;
 import com.lyapunov.tetris.blocks.Shape;
 import com.lyapunov.tetris.constants.BoardInfo;
+import com.lyapunov.tetris.game.BlockGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ public class Board {
             }
         }
         notifyObservers();
-
+        notifyObserversNew(BlockGenerator.getBlockGenerator().getNextBlock().getShape());
         int[] leftTop = new int[2];
         leftTop[0] = 3;
         return leftTop;
@@ -133,6 +134,20 @@ public class Board {
     protected void notifyObservers() {
         for(BoardObserver observer : observers){
             observer.update();
+        }
+    }
+
+    protected void notifyObserversNew(int[][] shapeMatrix) {
+        for(BoardObserver observer : observers){
+            if (shapeMatrix.length == 4) {
+                observer.generateNew(shapeMatrix);
+                return;
+            }
+            int[][] matrix = new int[4][4];
+            for (int i = 0; i < shapeMatrix.length; i++) {
+                System.arraycopy(shapeMatrix[i], 0, matrix[i + 1], 1, shapeMatrix.length);
+            }
+            observer.generateNew(matrix);
         }
     }
 

@@ -13,11 +13,14 @@ import com.lyapunov.tetris.game.Game
 
 class MainActivity : AppCompatActivity(), BoardObserver{
         private var surfaceHolder: SurfaceHolder? = null
+        private var nextSurfaceHolder: SurfaceHolder? = null
         private var paintArray: Array<Paint>? = null
         private var canvasHeight: Float = 0F
         private var canvasWidth: Float = 0F
         private var lineWidth: Float = 0F
         private var blockWidth: Float = 0F
+        private var nextCanvasHeight: Float = 0F
+        private var nextCanvasWidth: Float = 0F
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -80,7 +83,28 @@ class MainActivity : AppCompatActivity(), BoardObserver{
 
         })
 
+        val nextSurfaceView: SurfaceView = findViewById(R.id.next_board)
+        nextSurfaceHolder = nextSurfaceView.holder
+        nextSurfaceHolder?.addCallback(object : SurfaceHolder.Callback {
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                val canvas = nextSurfaceHolder!!.lockCanvas()
 
+                //Initialize canvas measure
+                nextCanvasHeight = canvas.height.toFloat()
+                nextCanvasWidth = canvas.width.toFloat()
+                drawInitialNextBoard(canvas)
+                nextSurfaceHolder!!.unlockCanvasAndPost(canvas)
+            }
+
+            override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+                Log.d("dddffff", "changed")
+            }
+
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                Log.d("dddfff", "destroyed")
+            }
+
+        })
 
 
     }
@@ -118,6 +142,34 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         }
     }
 
+
+    private fun drawInitialNextBoard(canvas: Canvas) {
+        canvas.drawRGB(245,248,251)
+        val paint: Paint = Paint()
+        paint.setARGB(255,255,255,255)
+        for (i in 0..4) {
+            canvas.drawRect(i * (blockWidth + lineWidth), 0F, i * (blockWidth + lineWidth) + lineWidth, nextCanvasHeight, paint)
+        }
+        for (i in 0..4) {
+            canvas.drawRect(0F, i * (blockWidth + lineWidth), nextCanvasWidth, i * (blockWidth + lineWidth) + lineWidth, paint)
+        }
+    }
+
+    private fun drawInstantNextBoard(canvas: Canvas, nextMatrix: Array<IntArray>, paintArray: Array<Paint>) {
+        for (i in 0..3) {
+            for (j in 0.. 3) {
+                if (nextMatrix[i][j] == 0) {
+                    continue
+                }
+                var left = j * blockWidth + (j + 1) * lineWidth
+                var top = i * blockWidth + (i + 1) * lineWidth
+                var right = left + blockWidth
+                var bottom = top + blockWidth
+                canvas.drawRect(left, top, right, bottom, paintArray[nextMatrix[i][j] - 1])
+            }
+        }
+    }
+
     /**
      * Get board update
      */
@@ -128,6 +180,13 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         drawInitialBoard(canvas)
         paintArray?.let { drawInstantBoard(canvas, matrix, it) }
         surfaceHolder!!.unlockCanvasAndPost(canvas)
+    }
+
+    override fun generateNew(shapeNum: Array<IntArray>) {
+        val canvas = nextSurfaceHolder!!.lockCanvas()
+        drawInitialNextBoard(canvas)
+        paintArray?.let { drawInstantNextBoard(canvas, shapeNum, it) }
+        nextSurfaceHolder!!.unlockCanvasAndPost(canvas)
     }
 
 

@@ -13,17 +13,25 @@ public class BlockGenerator {
     public static BlockGenerator getBlockGenerator() {
         return blockGenerator;
     }
-
+    private int nextRand = 0;
     /**
      * Generating a random block following rules of factory pattern
      * @return shape of new block
      */
     public Shape generateBlock() {
         //generate a random number within range [1, 7]
-        int randomNumber = ThreadLocalRandom.current().nextInt(1, 8);
-        return BlockFactory.getBlockFactory().getShape(randomNumber);
+        if (nextRand == 0) {
+            nextRand = ThreadLocalRandom.current().nextInt(1, 8);
+            return BlockFactory.getBlockFactory().getShape(ThreadLocalRandom.current().nextInt(1, 8));
+        }
+        Shape shape =  BlockFactory.getBlockFactory().getShape(nextRand);
+        nextRand = ThreadLocalRandom.current().nextInt(1, 8);
+        return shape;
     }
 
+    public Shape getNextBlock() {
+        return BlockFactory.getBlockFactory().getShape(nextRand);
+    }
 
 
 }

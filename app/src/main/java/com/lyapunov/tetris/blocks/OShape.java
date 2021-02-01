@@ -3,18 +3,20 @@ package com.lyapunov.tetris.blocks;
 import static com.lyapunov.tetris.constants.ShapeName.O_SHAPE;
 
 public class OShape implements Shape {
-    private static final int[][] shape = new int[2][2];
+    private static final int[][] shape = new int[4][4];
 
     /**
      * Constructor of an O_Shape block
-     * 4 4
-     * 4 4
+     * 0 0 0 0
+     * 0 4 4 0
+     * 0 4 4 0
+     * 0 0 0 0
      */
     public OShape() {
-        shape[0][0] = O_SHAPE;
-        shape[0][1] = O_SHAPE;
-        shape[1][0] = O_SHAPE;
         shape[1][1] = O_SHAPE;
+        shape[1][2] = O_SHAPE;
+        shape[2][1] = O_SHAPE;
+        shape[2][2] = O_SHAPE;
     }
     /**
      * Getter
@@ -36,7 +38,7 @@ public class OShape implements Shape {
 
     /**
      * Getter
-     * @return size of the block, here the matrix is 2 * 2, hence return 2
+     * @return size of the block, here the matrix is 4 * 4, hence return 4
      */
     @Override
     public int getMatrixSize() {
