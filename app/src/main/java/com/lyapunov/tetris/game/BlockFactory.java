@@ -11,6 +11,10 @@ import com.lyapunov.tetris.blocks.ZShape;
 import com.lyapunov.tetris.constants.ShapeName;
 
 public class BlockFactory {
+    /**
+     * Singleton Pattern - Only one blockFactory should exist within a game
+     * Factory Pattern - Use for generating new block
+     */
     private static BlockFactory blockFactory = new BlockFactory();
     private BlockFactory(){};
     public static BlockFactory getBlockFactory() {

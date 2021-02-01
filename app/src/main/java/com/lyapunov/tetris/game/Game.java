@@ -13,6 +13,12 @@ public class Game {
         this.state = state;
     }
 
+    /**
+     * Start a round of new game
+     * 1. generate new block
+     * 2. drop block
+     * Need refactor later
+     */
     public void start() {
         Timer thread = new Timer();
         thread.scheduleAtFixedRate(new TimerTask(){
@@ -27,21 +33,13 @@ public class Game {
         }, 500, 500);
     }
 
+    /**
+     * Generate a new block
+     * @return left top coordinate of the block
+     */
     public int[] generateNewBlock() {
-        currentBlock = BlockGenerator.getBlockGenertor().generateBlock();
+        currentBlock = BlockGenerator.getBlockGenerator().generateBlock();
         return Board.getBoard().addBlock(currentBlock);
     }
 
-
-
-    public void newBlock() {
-        Timer thread = new Timer();
-        thread.scheduleAtFixedRate(new TimerTask(){
-            @Override
-            public void run(){
-                Board.getBoard().addBlock(BlockGenerator.getBlockGenertor().generateBlock());
-            }
-
-        }, 500, 50000);
-    }
 }
