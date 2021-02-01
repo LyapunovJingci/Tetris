@@ -28,9 +28,12 @@ public class Game {
                     leftTop = generateNewBlock();
                 }
                 leftTop = Board.getBoard().dropBlock(currentBlock, leftTop[0], leftTop[1]);
+                if (leftTop[0] == -1) {
+                    currentBlock = null;
+                }
             }
 
-        }, 500, 500);
+        }, 1000, 1000);
     }
 
     /**

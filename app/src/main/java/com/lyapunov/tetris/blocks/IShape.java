@@ -7,16 +7,16 @@ public class IShape implements Shape {
 
     /**
      * Constructor of an I_Shape block
+     * 0 0 0 0
+     * 0 0 0 0
      * 1 1 1 1
-     * 0 0 0 0
-     * 0 0 0 0
      * 0 0 0 0
      */
     public IShape() {
-        shape[0][0] = I_SHAPE;
-        shape[0][1] = I_SHAPE;
-        shape[0][2] = I_SHAPE;
-        shape[0][3] = I_SHAPE;
+        shape[2][0] = I_SHAPE;
+        shape[2][1] = I_SHAPE;
+        shape[2][2] = I_SHAPE;
+        shape[2][3] = I_SHAPE;
     }
 
     /**

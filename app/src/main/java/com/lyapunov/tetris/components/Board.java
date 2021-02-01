@@ -8,13 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-    private volatile int[][] boardMatrix = new int[BoardInfo.BOARD_HEIGHT][BoardInfo.BOARD_WIDTH];
+    private volatile int[][] boardMatrix = new int[BoardInfo.BOARD_HEIGHT + 4][BoardInfo.BOARD_WIDTH];
     private List<BoardObserver> observers = new ArrayList<>();
     /**
      * Singleton Pattern - Only one board should exist within a game
      */
     private static Board board = new Board();
-    private Board(){}
+    private Board(){
+        for (int i = BoardInfo.BOARD_HEIGHT; i < boardMatrix.length; i++) {
+            for (int j = 0; j < boardMatrix[0].length; j++) {
+                boardMatrix[i][j] =  i;
+            }
+        }
+    }
     public static Board getBoard() {
         return board;
     }
@@ -61,9 +67,19 @@ public class Board {
             return null;
         }
         int size = shape.getMatrixSize();
+        for (int j = left; j < left + size; j++) {
+            if (boardMatrix[top + size][j] + boardMatrix[top + size - 1][j] != 0 && boardMatrix[top + size][j] + boardMatrix[top + size - 1][j] != shape.getShapeCode() && boardMatrix[top + size][j] + boardMatrix[top + size - 1][j] != boardMatrix[top + size][j]) {
+                int[] leftTop = new int[2];
+                leftTop[0] = -1;
+                return leftTop;
+            }
+
+        }
+
         for (int i = top + size; i > top; i--) {
             for (int j = left; j < left + size; j++) {
-                boardMatrix[i][j] = boardMatrix[i - 1][j];
+                boardMatrix[i][j] += boardMatrix[i - 1][j];
+                boardMatrix[i - 1][j] = 0;
             }
         }
         for (int j = left; j < left + size; j++) {
@@ -71,6 +87,7 @@ public class Board {
                 boardMatrix[top][j] = 0;
             }
         }
+
         int[] leftTop = new int[2];
         leftTop[0] = left;
         leftTop[1] = top + 1;
