@@ -4,6 +4,7 @@ import android.util.Log;
 import com.lyapunov.tetris.blocks.Shape;
 import com.lyapunov.tetris.constants.BoardInfo;
 import com.lyapunov.tetris.game.BlockGenerator;
+import com.lyapunov.tetris.game.RotationHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,22 @@ public class Board {
         //printBoard();
         return leftTop;
     }
+
+    public void rotateBlock(Shape shape, int left, int top, int status) {
+        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status);
+        int newStatus = status + 1;
+        if (newStatus == 4) {
+            newStatus = 0;
+        }
+        int[][] nextMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(newStatus);
+        for (int i = 0; i < shape.getMatrixSize(); i++) {
+            for (int j = 0; j < shape.getMatrixSize(); j++) {
+                 boardMatrix[top + i][left + j] -= currMatrix[i][j];
+                 boardMatrix[top + i][left + j] += nextMatrix[i][j];
+            }
+        }
+    }
+
 
 
     /**

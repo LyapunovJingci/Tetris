@@ -12,6 +12,7 @@ public class Game {
     public Game(int state) {
         this.state = state;
     }
+    private volatile int blockStatus = 0;
 
     /**
      * Start a round of new game
@@ -26,6 +27,7 @@ public class Game {
             public void run(){
                 if (currentBlock == null) {
                     leftTop = generateNewBlock();
+                    blockStatus = 0;
                 }
                 leftTop = Board.getBoard().dropBlock(currentBlock, leftTop[0], leftTop[1]);
                 if (leftTop[0] == -1) {
@@ -33,7 +35,7 @@ public class Game {
                 }
             }
 
-        }, 1000, 1000);
+        }, 1000, 500);
     }
 
     /**
@@ -43,6 +45,21 @@ public class Game {
     public int[] generateNewBlock() {
         currentBlock = BlockGenerator.getBlockGenerator().generateBlock();
         return Board.getBoard().addBlock(currentBlock);
+    }
+
+    public void rotateBlock() {
+        if (leftTop[0] == 0 || leftTop[0] == -1) {
+            return;
+        }
+        Thread t = new Thread(() -> {
+            Board.getBoard().rotateBlock(currentBlock, leftTop[0], leftTop[1], blockStatus);
+            if (blockStatus == 3) {
+                blockStatus = 0;
+            } else {
+                blockStatus = blockStatus + 1;
+            }
+        });
+        t.start();
     }
 
 }

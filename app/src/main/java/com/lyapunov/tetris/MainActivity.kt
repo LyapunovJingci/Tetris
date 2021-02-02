@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.widget.ImageButton
 import com.lyapunov.tetris.components.Board
 import com.lyapunov.tetris.components.BoardObserver
 import com.lyapunov.tetris.game.Game
@@ -44,11 +45,14 @@ class MainActivity : AppCompatActivity(), BoardObserver{
 
         //Attach listener
         Board.getBoard().attach(this)
-
         //Initialize new game, need refactor later
         val game: Game = Game(1)
         game.start()
-
+        val rotateButton: ImageButton = findViewById(R.id.rotateButton)
+        rotateButton.setOnClickListener{
+            Log.d("pushed", "BUTTON ROTATION")
+            game.rotateBlock()
+        }
         //Bind SurfaceView
         val surfaceView: SurfaceView = findViewById(R.id.board)
         surfaceHolder = surfaceView.holder

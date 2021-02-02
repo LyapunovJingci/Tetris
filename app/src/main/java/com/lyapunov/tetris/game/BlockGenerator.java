@@ -22,15 +22,25 @@ public class BlockGenerator {
         //generate a random number within range [1, 7]
         if (nextRand == 0) {
             nextRand = ThreadLocalRandom.current().nextInt(1, 8);
-            return BlockFactory.getBlockFactory().getShape(ThreadLocalRandom.current().nextInt(1, 8));
+            int currentRand = ThreadLocalRandom.current().nextInt(1, 8);
+            Shape shape = BlockFactory.getBlockFactory().getShape(currentRand);
+            rotationHelper(currentRand, shape.getShape());
+            return shape;
         }
         Shape shape =  BlockFactory.getBlockFactory().getShape(nextRand);
+        rotationHelper(nextRand, shape.getShape());
         nextRand = ThreadLocalRandom.current().nextInt(1, 8);
         return shape;
     }
 
     public Shape getNextBlock() {
         return BlockFactory.getBlockFactory().getShape(nextRand);
+    }
+
+    private void rotationHelper(int shapeName, int[][] shapeMatrix) {
+        if (!RotationHandler.getRotationHandler().rotationHash.containsKey(shapeName)) {
+            RotationHandler.getRotationHandler().generateRotationForHash(shapeName, shapeMatrix);
+        }
     }
 
 
