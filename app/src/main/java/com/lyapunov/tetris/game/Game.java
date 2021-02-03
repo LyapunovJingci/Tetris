@@ -4,15 +4,17 @@ import com.lyapunov.tetris.components.Board;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Game {
     int state;
     Shape currentBlock = null;
-    int[] leftTop = new int[2];
     public Game(int state) {
         this.state = state;
     }
-    private volatile int blockStatus = 0;
+    private volatile AtomicInteger blockStatus = new AtomicInteger(0); //record status of block rotation status(0, 1, 2, 3) maybe its better to use enum for future refactor
+    private volatile AtomicIntegerArray leftTop = new AtomicIntegerArray(2); //record the coordinate of tht top left corner of the current block
 
     /**
      * Start a round of new game
@@ -27,10 +29,10 @@ public class Game {
             public void run(){
                 if (currentBlock == null) {
                     leftTop = generateNewBlock();
-                    blockStatus = 0;
+                    blockStatus.set(0);
                 }
-                leftTop = Board.getBoard().dropBlock(currentBlock, leftTop[0], leftTop[1]);
-                if (leftTop[0] == -1) {
+                leftTop = Board.getBoard().dropBlock(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+                if (leftTop.get(0) == -10) {
                     currentBlock = null;
                 }
             }
@@ -42,24 +44,52 @@ public class Game {
      * Generate a new block
      * @return left top coordinate of the block
      */
-    public int[] generateNewBlock() {
+    public AtomicIntegerArray generateNewBlock() {
         currentBlock = BlockGenerator.getBlockGenerator().generateBlock();
         return Board.getBoard().addBlock(currentBlock);
     }
 
+    /**
+     * Rotate the current block by 90 degree counter-clockwise
+     */
     public void rotateBlock() {
-        if (leftTop[0] == 0 || leftTop[0] == -1) {
+        if (leftTop.get(0) == 0 || leftTop.get(0) == -1 || leftTop.get(0) > 8) {
             return;
         }
         Thread t = new Thread(() -> {
-            Board.getBoard().rotateBlock(currentBlock, leftTop[0], leftTop[1], blockStatus);
-            if (blockStatus == 3) {
-                blockStatus = 0;
+            Board.getBoard().rotateBlock(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+            if (blockStatus.get() == 3) {
+                blockStatus.set(0);
             } else {
-                blockStatus = blockStatus + 1;
+                blockStatus.getAndIncrement();
             }
         });
         t.start();
     }
 
+    /**
+     * Move the current block left by one unit
+     */
+    public void moveBlockLeft() {
+        if (leftTop.get(0) < -2) {
+            return;
+        }
+        Thread t = new Thread(() -> {
+            leftTop = Board.getBoard().moveBlockLeft(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+        });
+        t.start();
+    }
+
+    /**
+     * Move the current block right by one unit
+     */
+    public void moveBlockRight() {
+        if (leftTop.get(0) < -2) {
+            return;
+        }
+        Thread t = new Thread(() -> {
+            leftTop = Board.getBoard().moveBlockRight(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+        });
+        t.start();
+    }
 }

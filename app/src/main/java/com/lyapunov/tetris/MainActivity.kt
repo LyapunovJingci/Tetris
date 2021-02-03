@@ -22,6 +22,11 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         private var blockWidth: Float = 0F
         private var nextCanvasHeight: Float = 0F
         private var nextCanvasWidth: Float = 0F
+
+        private var lastClickLeft: Long = 0
+        private var lastClickRight: Long = 0
+        private var lastClickRotate: Long = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -49,9 +54,25 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         val game: Game = Game(1)
         game.start()
         val rotateButton: ImageButton = findViewById(R.id.rotateButton)
-        rotateButton.setOnClickListener{
-            Log.d("pushed", "BUTTON ROTATION")
-            game.rotateBlock()
+        rotateButton.setOnClickListener {
+            if (System.currentTimeMillis() - lastClickRotate > 30) {
+                game.rotateBlock()
+            }
+            lastClickRotate = System.currentTimeMillis()
+        }
+        val leftButton: ImageButton = findViewById(R.id.leftButton)
+        leftButton.setOnClickListener {
+            if (System.currentTimeMillis() - lastClickLeft > 50) {
+                game.moveBlockLeft()
+            }
+            lastClickLeft = System.currentTimeMillis()
+        }
+        val rightButton: ImageButton = findViewById(R.id.rightButton)
+        rightButton.setOnClickListener {
+            if (System.currentTimeMillis() - lastClickRight > 50) {
+                game.moveBlockRight()
+            }
+            lastClickRight = System.currentTimeMillis()
         }
         //Bind SurfaceView
         val surfaceView: SurfaceView = findViewById(R.id.board)
@@ -146,7 +167,9 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         }
     }
 
-
+    /**
+     * Draw initial background and lines for the board showing next block
+     */
     private fun drawInitialNextBoard(canvas: Canvas) {
         canvas.drawRGB(245,248,251)
         val paint: Paint = Paint()
@@ -159,6 +182,9 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         }
     }
 
+    /**
+     * Draw current status of a canvas for the board showing next block
+     */
     private fun drawInstantNextBoard(canvas: Canvas, nextMatrix: Array<IntArray>, paintArray: Array<Paint>) {
         for (i in 0..3) {
             for (j in 0.. 3) {
@@ -178,7 +204,6 @@ class MainActivity : AppCompatActivity(), BoardObserver{
      * Get board update
      */
     override fun update() {
-        Log.e("sksskksks", "Changed")
         val matrix: Array<IntArray> = Board.getBoard().boardMatrix
         val canvas = surfaceHolder!!.lockCanvas()
         drawInitialBoard(canvas)
@@ -186,6 +211,9 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         surfaceHolder!!.unlockCanvasAndPost(canvas)
     }
 
+    /**
+     * Get update, when a new block is generated, its next block shall change
+     */
     override fun generateNew(shapeNum: Array<IntArray>) {
         val canvas = nextSurfaceHolder!!.lockCanvas()
         drawInitialNextBoard(canvas)
