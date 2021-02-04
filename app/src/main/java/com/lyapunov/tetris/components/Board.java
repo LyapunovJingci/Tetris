@@ -86,6 +86,7 @@ public class Board {
                     continue;
                 }
                 if (boardMatrix[top + i + 1][left + j] != 0) {
+                    checkFullRow(shape, left, top);
                     AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
                     leftTop.set(0, -10); // tell game end is approaching
                     return leftTop;
@@ -239,8 +240,8 @@ public class Board {
         }
         leftTop.set(0, left - 1);
         leftTop.set(1, top);
+        printBoard();
         notifyObservers();
-        //printBoard();
         return leftTop;
     }
 
@@ -327,9 +328,41 @@ public class Board {
 
         leftTop.set(0, left + 1);
         leftTop.set(1, top);
+                printBoard();
         notifyObservers();
-        //printBoard();
         return leftTop;
+    }
+
+
+    private void checkFullRow(Shape shape, int left, int top) {
+        int size = shape.getMatrixSize();
+        List<Integer> fullRows = new ArrayList<>();
+        int bottom = Math.min(top + size, BoardInfo.BOARD_HEIGHT);
+        for (int i = top; i < bottom; i++) {
+            int sum = 0;
+            for (int j = 0; j < BoardInfo.BOARD_WIDTH; j++) {
+                if (boardMatrix[i][j] != 0) {
+                    sum++;
+                }
+            }
+            if (sum == BoardInfo.BOARD_WIDTH) {
+                fullRows.add(i);
+            }
+        }
+        if (fullRows.size() != 0) {
+            clearRow(fullRows);
+        }
+    }
+
+    private void clearRow(List<Integer> fullRows) {
+        for (int row: fullRows) {
+            for (int i = row; i > 0; i--) {
+                System.arraycopy(boardMatrix[i - 1], 0, boardMatrix[i], 0, BoardInfo.BOARD_WIDTH);
+            }
+        }
+        for (int j = 0; j < BoardInfo.BOARD_WIDTH; j++) {
+            boardMatrix[0][j] = 0;
+        }
     }
 
     /**
