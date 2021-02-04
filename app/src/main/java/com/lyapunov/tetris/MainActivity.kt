@@ -8,11 +8,12 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.ImageButton
-import com.lyapunov.tetris.components.Board
-import com.lyapunov.tetris.components.BoardObserver
+import com.lyapunov.tetris.databinding.ActivityMainBinding
+import com.lyapunov.tetris.game.Board
+import com.lyapunov.tetris.game.BoardObserver
 import com.lyapunov.tetris.game.Game
 
-class MainActivity : AppCompatActivity(), BoardObserver{
+class MainActivity : AppCompatActivity(), BoardObserver {
         private var surfaceHolder: SurfaceHolder? = null
         private var nextSurfaceHolder: SurfaceHolder? = null
         private var paintArray: Array<Paint>? = null
@@ -26,10 +27,13 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         private var lastClickLeft: Long = 0
         private var lastClickRight: Long = 0
         private var lastClickRotate: Long = 0
-
+        private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         // Initialize colors of each block
         val paintI: Paint = Paint()
@@ -53,30 +57,29 @@ class MainActivity : AppCompatActivity(), BoardObserver{
         //Initialize new game, need refactor later
         val game: Game = Game(1)
         game.start()
-        val rotateButton: ImageButton = findViewById(R.id.rotateButton)
-        rotateButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickRotate > 30) {
+
+        binding.rotateButton.setOnClickListener {
+            if (System.currentTimeMillis() - lastClickRotate > 300) {
                 game.rotateBlock()
             }
             lastClickRotate = System.currentTimeMillis()
         }
-        val leftButton: ImageButton = findViewById(R.id.leftButton)
-        leftButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickLeft > 50) {
+
+        binding.leftButton.setOnClickListener {
+            if (System.currentTimeMillis() - lastClickLeft > 300) {
                 game.moveBlockLeft()
             }
             lastClickLeft = System.currentTimeMillis()
         }
-        val rightButton: ImageButton = findViewById(R.id.rightButton)
-        rightButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickRight > 50) {
+
+        binding.rightButton.setOnClickListener {
+            if (System.currentTimeMillis() - lastClickRight > 300) {
                 game.moveBlockRight()
             }
             lastClickRight = System.currentTimeMillis()
         }
-        //Bind SurfaceView
-        val surfaceView: SurfaceView = findViewById(R.id.board)
-        surfaceHolder = surfaceView.holder
+
+        surfaceHolder = binding.board.holder
         surfaceHolder?.addCallback(object: SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
                 val canvas = surfaceHolder!!.lockCanvas()
@@ -108,8 +111,7 @@ class MainActivity : AppCompatActivity(), BoardObserver{
 
         })
 
-        val nextSurfaceView: SurfaceView = findViewById(R.id.next_board)
-        nextSurfaceHolder = nextSurfaceView.holder
+        nextSurfaceHolder = binding.nextBoard.holder
         nextSurfaceHolder?.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
                 val canvas = nextSurfaceHolder!!.lockCanvas()

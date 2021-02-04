@@ -1,4 +1,4 @@
-package com.lyapunov.tetris.components;
+package com.lyapunov.tetris.game;
 
 public interface BoardObserver {
     void update();

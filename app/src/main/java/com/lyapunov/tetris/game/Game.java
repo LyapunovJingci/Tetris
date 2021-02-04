@@ -1,6 +1,5 @@
 package com.lyapunov.tetris.game;
 import com.lyapunov.tetris.blocks.Shape;
-import com.lyapunov.tetris.components.Board;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,15 +22,14 @@ public class Game {
     public Game(int state) {
         this.state = state;
         rightThread = new Thread(() -> {
-            leftTop = Board.getBoard().moveBlockRight(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+            leftTop = Board.getBoard().moveBlockRight(currentBlock, leftTop, blockStatus);
         });
-
         leftThread = new Thread(() -> {
-            leftTop = Board.getBoard().moveBlockLeft(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+            leftTop = Board.getBoard().moveBlockLeft(currentBlock, leftTop, blockStatus);
         });
 
         rotateThread = new Thread(() -> {
-            Board.getBoard().rotateBlock(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+            Board.getBoard().rotateBlock(currentBlock, leftTop, blockStatus);
             if (blockStatus.get() == 3) {
                 blockStatus.set(0);
             } else {
@@ -55,28 +53,36 @@ public class Game {
                     leftTop = generateNewBlock();
                     blockStatus.set(0);
                 }
-                leftTop = Board.getBoard().dropBlock(currentBlock, leftTop.get(0), leftTop.get(1), blockStatus.get());
+                leftTop = dropBlock();
                 if (leftTop.get(0) == -10) {
                     currentBlock = null;
                 }
             }
 
-        }, 1000, 500);
+        }, 1000, 1000);
     }
 
     /**
      * Generate a new block
      * @return left top coordinate of the block
      */
-    public AtomicIntegerArray generateNewBlock() {
+    private synchronized AtomicIntegerArray generateNewBlock() {
         currentBlock = BlockGenerator.getBlockGenerator().generateBlock();
         return Board.getBoard().addBlock(currentBlock);
     }
 
     /**
+     * Drop current block by one unit
+     * @return left top coordinate of the block after dropping
+     */
+    private synchronized AtomicIntegerArray dropBlock() {
+        return Board.getBoard().dropBlock(currentBlock, leftTop, blockStatus);
+    }
+
+    /**
      * Rotate the current block by 90 degree counter-clockwise
      */
-    public void rotateBlock() {
+    public synchronized void rotateBlock() {
         if (leftTop.get(0) == 0 || leftTop.get(0) == -1 || leftTop.get(0) > 8) {
             return;
         }
@@ -85,12 +91,13 @@ public class Game {
             rotateThreadStarted = true;
         }
         rotateThread.run();
+
     }
 
     /**
      * Move the current block left by one unit
      */
-    public void moveBlockLeft() {
+    public synchronized void moveBlockLeft() {
         if (leftTop.get(0) < -2) {
             return;
         }
@@ -104,7 +111,7 @@ public class Game {
     /**
      * Move the current block right by one unit
      */
-    public void moveBlockRight() {
+    public synchronized void moveBlockRight() {
         if (leftTop.get(0) < -2) {
             return;
         }
@@ -113,7 +120,5 @@ public class Game {
             rightThreadStarted = true;
         }
         rightThread.run();
-
-
     }
 }

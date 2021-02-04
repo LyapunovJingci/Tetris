@@ -1,13 +1,13 @@
-package com.lyapunov.tetris.components;
+package com.lyapunov.tetris.game;
 
 import android.util.Log;
 import com.lyapunov.tetris.blocks.Shape;
 import com.lyapunov.tetris.constants.BoardInfo;
-import com.lyapunov.tetris.game.BlockGenerator;
-import com.lyapunov.tetris.game.RotationHandler;
+import com.lyapunov.tetris.model.Line;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Board {
@@ -21,7 +21,7 @@ public class Board {
     private Board(){
         //generate boundary for the matrix
         for (int i = BoardInfo.BOARD_HEIGHT; i < boardMatrix.length; i++) {
-            for (int j = 0; j < boardMatrix[0].length; j++) {
+            for (int j = 0; j < BoardInfo.BOARD_WIDTH; j++) {
                 boardMatrix[i][j] =  -1;
             }
         }
@@ -53,30 +53,29 @@ public class Board {
                 this.boardMatrix[i][initialPosition + j] += shape.getShape()[i][j];
             }
         }
-        notifyObservers();
-        notifyObserversNew(BlockGenerator.getBlockGenerator().getNextBlock().getShape());
         AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
         leftTop.set(0, initialPosition);
         leftTop.set(1, 0);
+        notifyObservers();
+        notifyObserversNew(BlockGenerator.getBlockGenerator().getNextBlock().getShape());
         return leftTop;
     }
 
     /**
      * Drop a current block down by one unit
      * @param shape shape of the current dropping block
-     * @param left coordinate of the leftTop corner of the shape (j)
-     * @param top coordinate of the leftTop corner of the shape (i)
+     * @param leftTop coordinate of the top-left corner
+     * @param status rotation status of the current block (0, 1, 2, 3)
      * @return the new coordinate of the leftTop corner of the shape(left, top + 1)
      */
-    public AtomicIntegerArray dropBlock(Shape shape, int left, int top, int status) {
+    public AtomicIntegerArray dropBlock(Shape shape, AtomicIntegerArray leftTop, AtomicInteger status) {
         if (shape == null) {
             return null;
         }
         int size = shape.getMatrixSize();
-        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status);
+        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status.get());
 
         // validity check
-
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (currMatrix[i][j] == 0) {
@@ -85,9 +84,8 @@ public class Board {
                 if (i + 1 < size && currMatrix[i][j] == currMatrix[i + 1][j]) {
                     continue;
                 }
-                if (boardMatrix[top + i + 1][left + j] != 0) {
-                    checkFullRow(shape, left, top);
-                    AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
+                if (boardMatrix[leftTop.get(1) + i + 1][leftTop.get(0) + j] != 0) {
+                    checkFullRow(shape, leftTop.get(1));
                     leftTop.set(0, -10); // tell game end is approaching
                     return leftTop;
                 }
@@ -95,41 +93,31 @@ public class Board {
         }
 
         // perform drop
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (currMatrix[i][j] == 0) {
+                    continue;
+                }
+                boardMatrix[i + leftTop.get(1)][j + leftTop.get(0)] -= currMatrix[i][j];
+                boardMatrix[i + leftTop.get(1) + 1][j + leftTop.get(0)] += currMatrix[i][j];
+            }
+        }
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (currMatrix[i][j] == 0) {
-                    continue;
-                }
-                boardMatrix[i + top][j + left] -= currMatrix[i][j];
-            }
-        }
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (currMatrix[i][j] == 0) {
-                    continue;
-                }
-                boardMatrix[i + top + 1][j + left] += currMatrix[i][j];
-            }
-        }
-        AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
-        leftTop.set(0, left);
-        leftTop.set(1, top + 1);
+        leftTop.set(1, leftTop.get(1) + 1);
+        printBoard("drop");
         notifyObservers();
-//        printBoard();
         return leftTop;
     }
 
     /**
      * Rotate a block by 90 degree counter-clockwise
-     * @param shape shape of current block
-     * @param left coordinate of top left corner
-     * @param top coordinate of top left corner
-     * @param status rotation status of current block (0, 1, 2, 3)
+     * @param shape shape of the current dropping block
+     * @param leftTop coordinate of the top-left corner (0, 1, 2, 3)
+     * @param status rotation status of the current block
      */
-    public void rotateBlock(Shape shape, int left, int top, int status) {
-        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status);
-        int newStatus = status + 1;
+    public synchronized void rotateBlock(Shape shape, AtomicIntegerArray leftTop, AtomicInteger status) {
+        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status.get());
+        int newStatus = status.get() + 1;
         if (newStatus == 4) {
             newStatus = 0;
         }
@@ -137,57 +125,49 @@ public class Board {
         int size = shape.getMatrixSize();
 
         // validity check
-
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (nextMatrix[i][j] == 0) {
                     continue;
                 }
-                if (boardMatrix[top + i][left + j] - currMatrix[i][j] + nextMatrix[i][j] != shape.getShapeCode()) {
+                if (boardMatrix[leftTop.get(1) + i][leftTop.get(0) + j] - currMatrix[i][j] + nextMatrix[i][j] != shape.getShapeCode()) {
                     return;
                 }
             }
         }
 
         // perform rotation
-
         for (int i = 0; i < shape.getMatrixSize(); i++) {
             for (int j = 0; j < shape.getMatrixSize(); j++) {
-                 boardMatrix[top + i][left + j] -= currMatrix[i][j];
-                 boardMatrix[top + i][left + j] += nextMatrix[i][j];
+                 boardMatrix[leftTop.get(1) + i][leftTop.get(0) + j] -= currMatrix[i][j];
+                 boardMatrix[leftTop.get(1) + i][leftTop.get(0) + j] += nextMatrix[i][j];
             }
         }
     }
 
     /**
      * Move current block left by 1 unit
-     * @param shape shape of current block
-     * @param left coordinate of top left corner
-     * @param top coordinate of top left corner
-     * @param status rotation status of current block (0, 1, 2, 3)
+     * @param shape shape of the current dropping block
+     * @param leftTop coordinate of the top-left corner
+     * @param status rotation status of the current block (0, 1, 2, 3)
      * @return the new coordinate of the leftTop corner of the shape(left - 1, top)
      */
-    public AtomicIntegerArray moveBlockLeft(Shape shape, int left, int top, int status) {
+    public synchronized AtomicIntegerArray moveBlockLeft(Shape shape, AtomicIntegerArray leftTop, AtomicInteger status) {
         if (shape == null) {
             return null;
         }
-        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status);
+        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status.get());
         int size = shape.getMatrixSize();
 
-        AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
-        leftTop.set(0, left);
-        leftTop.set(1, top);
-
         //boundary check
-
-        if (left == 0) {
+        if (leftTop.get(0) == 0) {
             for (int i = 0; i < size; i++) {
                 if (currMatrix[i][0] != 0) {
                     return leftTop;
                 }
             }
         }
-        if (left == -1) {
+        if (leftTop.get(0) == -1) {
             for (int i = 0; i < size; i++) {
                 if (currMatrix[i][1] != 0) {
                     return leftTop;
@@ -195,12 +175,11 @@ public class Board {
             }
         }
 
-        if (left == -2) {
+        if (leftTop.get(0) == -2) {
             return leftTop;
         }
 
         // validity check
-
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (currMatrix[i][j] == 0) {
@@ -209,7 +188,7 @@ public class Board {
                 if (j - 1 >= 0 && currMatrix[i][j] == currMatrix[i][j - 1]) {
                     continue;
                 }
-                if (left + j - 1 >= 0 && boardMatrix[top + i][left + j - 1] != 0) {
+                if (leftTop.get(0) + j - 1 >= 0 && boardMatrix[leftTop.get(1) + i][leftTop.get(0) + j - 1] != 0) {
                     return leftTop;
                 }
             }
@@ -217,64 +196,49 @@ public class Board {
 
 
         //perform movement
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (currMatrix[i][j] == 0) {
+                    continue;
+                }
+                if (j + leftTop.get(0) >= 0) {
+                    boardMatrix[i + leftTop.get(1)][j + leftTop.get(0)] -= currMatrix[i][j];
+                }
+                if (j + leftTop.get(0) - 1 >= 0) {
+                    boardMatrix[i + leftTop.get(1)][j + leftTop.get(0) - 1] += currMatrix[i][j];
+                }
+            }
+        }
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (currMatrix[i][j] == 0) {
-                    continue;
-                }
-                if (j + left >= 0) {
-                    boardMatrix[i + top][j + left] -= currMatrix[i][j];
-                }
-            }
-        }
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (currMatrix[i][j] == 0) {
-                    continue;
-                }
-                if (j + left - 1 >= 0) {
-                    boardMatrix[i + top][j + left - 1] += currMatrix[i][j];
-                }
-            }
-        }
-        leftTop.set(0, left - 1);
-        leftTop.set(1, top);
-        printBoard();
+        leftTop.set(0, leftTop.get(0) - 1);
+        printBoard("left");
         notifyObservers();
         return leftTop;
     }
 
-
     /**
      * Move current block right by 1 unit
-     * @param shape shape of current block
-     * @param left coordinate of top left corner
-     * @param top coordinate of top left corner
-     * @param status rotation status of current block (0, 1, 2, 3)
+     * @param shape shape of the current dropping block
+     * @param leftTop coordinate of the top-left corner
+     * @param status rotation status of the current block (0, 1, 2, 3)
      * @return the new coordinate of the leftTop corner of the shape(left + 1, top)
      */
-    public AtomicIntegerArray moveBlockRight(Shape shape, int left, int top, int status) {
+    public synchronized AtomicIntegerArray moveBlockRight(Shape shape, AtomicIntegerArray leftTop, AtomicInteger status) {
         if (shape == null) {
             return null;
         }
-        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status);
+        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status.get());
         int size = shape.getMatrixSize();
 
-        AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
-        leftTop.set(0, left);
-        leftTop.set(1, top);
-
         // boundary check
-
-        if (left + size == BoardInfo.BOARD_WIDTH) {
+        if (leftTop.get(0) + size == BoardInfo.BOARD_WIDTH) {
             for (int i = 0; i < size; i++) {
                 if (currMatrix[i][size - 1] != 0) {
                     return leftTop;
                 }
             }
         }
-        if (left + size == BoardInfo.BOARD_WIDTH + 1) {
+        if (leftTop.get(0) + size == BoardInfo.BOARD_WIDTH + 1) {
             for (int i = 0; i < size; i++) {
                 if (currMatrix[i][size - 2] != 0) {
                     return leftTop;
@@ -282,13 +246,11 @@ public class Board {
             }
         }
 
-        if (left + size == BoardInfo.BOARD_WIDTH + 2) {
+        if (leftTop.get(0) + size == BoardInfo.BOARD_WIDTH + 2) {
             return leftTop;
         }
 
-
         //validity check
-
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (currMatrix[i][j] == 0) {
@@ -297,44 +259,39 @@ public class Board {
                 if (j + 1 < size && currMatrix[i][j] == currMatrix[i][j + 1]) {
                     continue;
                 }
-                if (left + j + 1 < boardMatrix.length && boardMatrix[top + i][left + j + 1] != 0) {
+                if (leftTop.get(0) + j + 1 < boardMatrix.length && boardMatrix[leftTop.get(1) + i][leftTop.get(0) + j + 1] != 0) {
                     return leftTop;
                 }
             }
         }
 
         // perform movement
-
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (currMatrix[i][j] == 0) {
                     continue;
                 }
-                if (j + left < boardMatrix.length) {
-                    boardMatrix[i + top][j + left] -= currMatrix[i][j];
+                if (j + leftTop.get(0) < boardMatrix.length) {
+                    boardMatrix[i + leftTop.get(1)][j + leftTop.get(0)] -= currMatrix[i][j];
                 }
-            }
-        }
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (currMatrix[i][j] == 0) {
-                    continue;
-                }
-                if (j + left + 1 < boardMatrix.length) {
-                    boardMatrix[i + top][j + left + 1] += currMatrix[i][j];
+                if (j + leftTop.get(0) + 1 < boardMatrix.length) {
+                    boardMatrix[i + leftTop.get(1)][j + leftTop.get(0) + 1] += currMatrix[i][j];
                 }
             }
         }
 
-        leftTop.set(0, left + 1);
-        leftTop.set(1, top);
-                printBoard();
+        leftTop.set(0, leftTop.get(0) + 1);
+        //printBoard("right");
         notifyObservers();
         return leftTop;
     }
 
-
-    private void checkFullRow(Shape shape, int left, int top) {
+    /**
+     * Check whether a dropping block fulfill full row(s)
+     * @param shape shape of the current dropping block
+     * @param top i coordinate of the top-left corner
+     */
+    private void checkFullRow(Shape shape, int top) {
         int size = shape.getMatrixSize();
         List<Integer> fullRows = new ArrayList<>();
         int bottom = Math.min(top + size, BoardInfo.BOARD_HEIGHT);
@@ -354,6 +311,10 @@ public class Board {
         }
     }
 
+    /**
+     * Clear rows and move above rows down
+     * @param fullRows i coordinate of all full rows
+     */
     private void clearRow(List<Integer> fullRows) {
         for (int row: fullRows) {
             for (int i = row; i > 0; i--) {
@@ -368,13 +329,13 @@ public class Board {
     /**
      * Print current status of the board, mainly use for testing visualization
      */
-    private void printBoard() {
+    private void printBoard(String info) {
         for (int[] matrix : boardMatrix) {
             StringBuilder builder = new StringBuilder();
             for (int j = 0; j < boardMatrix[0].length; j++) {
                 builder.append(matrix[j]).append(" ");
             }
-            Log.d("line", builder.toString());
+            Log.d(info, builder.toString());
         }
     }
 
