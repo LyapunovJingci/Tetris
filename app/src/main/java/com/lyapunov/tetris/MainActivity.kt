@@ -1,5 +1,7 @@
 package com.lyapunov.tetris
 
+import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import com.lyapunov.tetris.databinding.ActivityMainBinding
 import com.lyapunov.tetris.game.Board
 import com.lyapunov.tetris.game.BoardObserver
@@ -30,6 +33,7 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         private var level: TextView? = null
         private var score: TextView? = null
         private var currentScore: Int = 0
+        private var builder: AlertDialog.Builder? = null
         private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,7 +142,23 @@ class MainActivity : AppCompatActivity(), BoardObserver {
             }
 
         })
+        builder = AlertDialog.Builder(this)
+        builder!!.setTitle("Game End")
+        builder?.apply {
+            setPositiveButton("Restart",
+                DialogInterface.OnClickListener { dialog, id ->
+                    val game2: Game = Game(2)
+                    game2.start()
+                })
+            setNegativeButton("Back",
+                DialogInterface.OnClickListener { dialog, id ->
+                    val intent = Intent(this@MainActivity, StartActivity::class.java)
+                    startActivity(intent)
+                })
+        }
 
+        // Create the AlertDialog
+        builder!!.create()
 
     }
 
@@ -230,16 +250,16 @@ class MainActivity : AppCompatActivity(), BoardObserver {
     }
 
     override fun clearRows(totalNumOfRows: Int, curNumOfRows: Int) {
-        runOnUiThread(java.lang.Runnable {
+        runOnUiThread {
             lines?.text = totalNumOfRows.toString()
-            currentScore += when(curNumOfRows) {
+            currentScore += when (curNumOfRows) {
                 1 -> 100
                 2 -> 200
                 3 -> 400
                 else -> 800
             }
             score?.text = currentScore.toString()
-            level?.text = when(currentScore) {
+            level?.text = when (currentScore) {
                 in 2000..3999 -> "2"
                 in 4000..5999 -> "2"
                 in 6000..7999 -> "2"
@@ -252,7 +272,20 @@ class MainActivity : AppCompatActivity(), BoardObserver {
                 in 20000..21999 -> "2"
                 else -> "1"
             }
-        })
+        }
+    }
+
+    override fun gameEnd() {
+        Log.e("Game end", "Game End");
+        runOnUiThread { builder?.show() }
+    }
+
+    override fun gameRestart() {
+        runOnUiThread {
+            lines?.text = "0"
+            score?.text = "0"
+            level?.text = "1"
+        }
     }
 
 

@@ -45,6 +45,9 @@ public class Game {
      * Need refactor later
      */
     public void start() {
+        if (this.state == 2) {
+            Board.getBoard().clear();
+        }
         Timer thread = new Timer();
         thread.scheduleAtFixedRate(new TimerTask(){
             @Override
@@ -53,13 +56,16 @@ public class Game {
                     leftTop = generateNewBlock();
                     blockStatus.set(0);
                 }
+                if (leftTop.get(0) == -100) {
+                    thread.cancel();
+                }
                 leftTop = dropBlock();
                 if (leftTop.get(0) == -10) {
                     currentBlock = null;
                 }
             }
 
-        }, 1000, 500);
+        }, 100, 50);
     }
 
     /**

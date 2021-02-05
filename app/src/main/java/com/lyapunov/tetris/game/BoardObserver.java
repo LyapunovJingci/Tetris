@@ -4,4 +4,6 @@ public interface BoardObserver {
     void update();
     void generateNew(int[][] shapeNum);
     void clearRows(int numOfRows, int currentNumOfRows);
+    void gameEnd();
+    void gameRestart();
 }

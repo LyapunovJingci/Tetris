@@ -3,7 +3,6 @@ package com.lyapunov.tetris.game;
 import android.util.Log;
 import com.lyapunov.tetris.blocks.Shape;
 import com.lyapunov.tetris.constants.BoardInfo;
-import com.lyapunov.tetris.viewmodel.LineViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +38,17 @@ public class Board {
         return boardMatrix;
     }
 
+    public void clear() {
+        for (int i = 0; i < BoardInfo.BOARD_HEIGHT; i++) {
+            for (int j = 0; j < BoardInfo.BOARD_WIDTH; j++) {
+                boardMatrix[i][j] = 0;
+            }
+        }
+        clearedLines = 0;
+        notifyObservers();
+        notifyObserversRestart();
+    }
+
     /**
      * Generate a new block at the top of the board
      * @param shape shape of a new block
@@ -49,9 +59,25 @@ public class Board {
             return null;
         }
         int size = shape.getMatrixSize();
+        int[][] shapeMatrix = shape.getShape();
+
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                this.boardMatrix[i][initialPosition + j] += shape.getShape()[i][j];
+                if (shapeMatrix[i][j] == 0) {
+                    continue;
+                }
+                if (boardMatrix[i][initialPosition + j] != 0) {
+                    AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
+                    leftTop.set(0, -100);
+                    notifyObserversEnd();
+                    return leftTop;
+                }
+            }
+        }
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                boardMatrix[i][initialPosition + j] += shape.getShape()[i][j];
             }
         }
         AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
@@ -72,6 +98,9 @@ public class Board {
     public AtomicIntegerArray dropBlock(Shape shape, AtomicIntegerArray leftTop, AtomicInteger status) {
         if (shape == null) {
             return null;
+        }
+        if (leftTop.get(0) == -100) {
+            return leftTop;
         }
         int size = shape.getMatrixSize();
         int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status.get());
@@ -389,6 +418,18 @@ public class Board {
     protected void notifyObserversClear(int numOfRows, int currentNumOfRows) {
         for (BoardObserver observer: observers) {
             observer.clearRows(numOfRows, currentNumOfRows);
+        }
+    }
+
+    protected void notifyObserversEnd() {
+        for (BoardObserver observer: observers) {
+            observer.gameEnd();
+        }
+    }
+
+    protected void notifyObserversRestart() {
+        for (BoardObserver observer: observers) {
+            observer.gameRestart();
         }
     }
 
