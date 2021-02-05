@@ -10,11 +10,10 @@ import android.view.SurfaceHolder
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.lyapunov.tetris.databinding.ActivityMainBinding
-import com.lyapunov.tetris.game.Board
-import com.lyapunov.tetris.game.BoardObserver
+import com.lyapunov.tetris.game.GameObserver
 import com.lyapunov.tetris.game.Game
 
-class MainActivity : AppCompatActivity(), BoardObserver {
+class MainActivity : AppCompatActivity(), GameObserver {
         private var surfaceHolder: SurfaceHolder? = null
         private var nextSurfaceHolder: SurfaceHolder? = null
         private var paintArray: Array<Paint>? = null
@@ -238,7 +237,7 @@ class MainActivity : AppCompatActivity(), BoardObserver {
      * Get board update
      */
     override fun updateCanvas() {
-        val matrix: Array<IntArray> = Board.getBoard().boardMatrix
+        val matrix: Array<IntArray> = Game.getGame().currentBoardMatrix
         val canvas = surfaceHolder!!.lockCanvas()
         drawInitialBoard(canvas)
         paintArray?.let { drawInstantBoard(canvas, matrix, it) }
@@ -248,7 +247,7 @@ class MainActivity : AppCompatActivity(), BoardObserver {
     /**
      * Get update, when a new block is generated, its next block shall change
      */
-    override fun generateNew(shapeNum: Array<IntArray>) {
+    override fun generateNewBlock(shapeNum: Array<IntArray>) {
         val canvas = nextSurfaceHolder!!.lockCanvas()
         drawInitialNextBoard(canvas)
         paintArray?.let { drawInstantNextBoard(canvas, shapeNum, it) }

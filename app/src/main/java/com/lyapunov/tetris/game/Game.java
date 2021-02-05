@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Game {
     Shape currentBlock = null;
-    private List<BoardObserver> observers = new ArrayList<>();
+    private List<GameObserver> observers = new ArrayList<>();
     private volatile int totalCleardLines = 0;
     private volatile int level = 1;
     private volatile int score = 0;
@@ -104,6 +104,10 @@ public class Game {
         Board.getBoard().clear();
     }
 
+    public int[][] getCurrentBoardMatrix() {
+        return Board.getBoard().getBoardMatrix();
+    }
+
     /**
      * Generate a new block
      * @return left top coordinate of the block
@@ -171,7 +175,7 @@ public class Game {
      * Attach observers to the board
      * @param observer MainActivity (updating UI)
      */
-    public void attach(BoardObserver observer) {
+    public void attach(GameObserver observer) {
         observers.add(observer);
     }
 
@@ -179,7 +183,7 @@ public class Game {
      * Detach observers
      * @param observer currently no usage
      */
-    public void detach(BoardObserver observer) {
+    public void detach(GameObserver observer) {
         observers.remove(observer);
     }
 
@@ -188,7 +192,7 @@ public class Game {
      * MainActivity (updating UI)
      */
     protected void notifyObserversUpdate() {
-        for(BoardObserver observer : observers){
+        for(GameObserver observer : observers){
             observer.updateCanvas();
         }
     }
@@ -198,33 +202,33 @@ public class Game {
      * @param shapeMatrix the shape of next block
      */
     protected void notifyObserversNew(int[][] shapeMatrix) {
-        for(BoardObserver observer : observers){
+        for(GameObserver observer : observers){
             if (shapeMatrix.length == 4) {
-                observer.generateNew(shapeMatrix);
+                observer.generateNewBlock(shapeMatrix);
                 return;
             }
             int[][] matrix = new int[4][4];
             for (int i = 0; i < shapeMatrix.length; i++) {
                 System.arraycopy(shapeMatrix[i], 0, matrix[i + 1], 1, shapeMatrix.length);
             }
-            observer.generateNew(matrix);
+            observer.generateNewBlock(matrix);
         }
     }
 
     protected void notifyObserversClear(int totalCleardLines, int score, int level) {
-        for (BoardObserver observer: observers) {
+        for (GameObserver observer: observers) {
             observer.updateGameInfo(totalCleardLines, score, level);
         }
     }
 
     protected void notifyObserversEnd() {
-        for (BoardObserver observer: observers) {
+        for (GameObserver observer: observers) {
             observer.gameEnd();
         }
     }
 
     protected void notifyObserversRestart() {
-        for (BoardObserver observer: observers) {
+        for (GameObserver observer: observers) {
             observer.gameRestart();
         }
     }
