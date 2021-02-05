@@ -1,4 +1,5 @@
 package com.lyapunov.tetris.game;
+
 import com.lyapunov.tetris.blocks.Shape;
 
 import java.util.ArrayList;
@@ -14,10 +15,9 @@ public class Game {
     private volatile int totalCleardLines = 0;
     private volatile int level = 1;
     private volatile int score = 0;
-
+    private Timer dropTimer;
     private volatile AtomicInteger blockStatus = new AtomicInteger(0); //record status of block rotation status(0, 1, 2, 3) maybe its better to use enum for future refactor
     private volatile AtomicIntegerArray leftTop = new AtomicIntegerArray(2); //record the coordinate of tht top left corner of the current block
-    private Timer dropTimer;
     private Thread rightThread;
     private Thread leftThread;
     private Thread rotateThread;
@@ -47,7 +47,6 @@ public class Game {
             }
             notifyObserversUpdate();
         });
-        dropTimer = new Timer();
     }
     public static Game getGame() {
         return game;
@@ -60,6 +59,8 @@ public class Game {
      * Need refactor later
      */
     public void start() {
+        dropTimer = new Timer();
+        notifyObserversClear(0, 0, 1);
         dropTimer.scheduleAtFixedRate(new TimerTask(){
             @Override
             public void run(){
@@ -78,7 +79,7 @@ public class Game {
                 notifyObserversUpdate();
             }
 
-        }, 100, 300);
+        }, 999, 200);
     }
 
     private void updateGameInfo(int clearedLines) {
@@ -91,12 +92,16 @@ public class Game {
         notifyObserversClear(totalCleardLines, score, level);
     }
 
-    public void restart() {
-
-    }
-
     public void end() {
-
+        dropTimer.cancel();
+        totalCleardLines = 0;
+        level = 1;
+        score = 0;
+        currentBlock = null;
+        leftThread.interrupt();
+        rightThread.interrupt();
+        rotateThread.interrupt();
+        Board.getBoard().clear();
     }
 
     /**

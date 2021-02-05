@@ -1,6 +1,5 @@
 package com.lyapunov.tetris
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -37,7 +36,7 @@ class MainActivity : AppCompatActivity(), BoardObserver {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.e("eee", "Create")
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
@@ -60,21 +59,21 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         paintArray = arrayOf(paintI, paintJ, paintL, paintO, paintS, paintT, paintZ)
 
         binding.rotateButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickRotate > 300) {
+            if (System.currentTimeMillis() - lastClickRotate > 100) {
                 Game.getGame().rotateBlock()
             }
             lastClickRotate = System.currentTimeMillis()
         }
 
         binding.leftButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickLeft > 300) {
+            if (System.currentTimeMillis() - lastClickLeft > 100) {
                 Game.getGame().moveBlockLeft()
             }
             lastClickLeft = System.currentTimeMillis()
         }
 
         binding.rightButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickRight > 300) {
+            if (System.currentTimeMillis() - lastClickRight > 100) {
                 Game.getGame().moveBlockRight()
             }
             lastClickRight = System.currentTimeMillis()
@@ -138,15 +137,17 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         builder = AlertDialog.Builder(this)
         builder!!.setTitle("Game End")
         builder?.apply {
-            setPositiveButton("Restart",
-                DialogInterface.OnClickListener { dialog, id ->
-                    Game.getGame().start()
-                })
-            setNegativeButton("Back",
-                DialogInterface.OnClickListener { dialog, id ->
-                    val intent = Intent(this@MainActivity, StartActivity::class.java)
-                    startActivity(intent)
-                })
+            setPositiveButton("Restart"
+            ) { dialog, id ->
+                Game.getGame().end()
+                Game.getGame().start()
+            }
+            setNegativeButton("Back"
+            ) { dialog, id ->
+                Game.getGame().end()
+                val intent = Intent(this@MainActivity, StartActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         // Create the AlertDialog
@@ -158,6 +159,15 @@ class MainActivity : AppCompatActivity(), BoardObserver {
 
     }
 
+    override fun onStop() {
+        Game.getGame().detach(this)
+        super.onStop()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        Game.getGame().detach(this)
+        Game.getGame().end()
+    }
     /**
      * Draw initial background and lines
      */
@@ -254,7 +264,7 @@ class MainActivity : AppCompatActivity(), BoardObserver {
     }
 
     override fun gameEnd() {
-        Log.e("Game end", "Game End");
+        Log.e("Game end", "Game End")
         runOnUiThread { builder?.show() }
     }
 
@@ -265,7 +275,6 @@ class MainActivity : AppCompatActivity(), BoardObserver {
             levels?.text = "1"
         }
     }
-
 
 }
 
