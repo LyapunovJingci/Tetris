@@ -6,8 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceHolder
-import android.view.SurfaceView
-import android.widget.ImageButton
+import android.widget.TextView
 import com.lyapunov.tetris.databinding.ActivityMainBinding
 import com.lyapunov.tetris.game.Board
 import com.lyapunov.tetris.game.BoardObserver
@@ -27,7 +26,12 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         private var lastClickLeft: Long = 0
         private var lastClickRight: Long = 0
         private var lastClickRotate: Long = 0
+        private var lines: TextView? = null
+        private var level: TextView? = null
+        private var score: TextView? = null
+        private var currentScore: Int = 0
         private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -78,7 +82,9 @@ class MainActivity : AppCompatActivity(), BoardObserver {
             }
             lastClickRight = System.currentTimeMillis()
         }
-
+        lines = binding.RealTimeLines
+        level = binding.LevelRealTime
+        score = binding.ScoreRealTime
         surfaceHolder = binding.board.holder
         surfaceHolder?.addCallback(object: SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
@@ -221,6 +227,32 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         drawInitialNextBoard(canvas)
         paintArray?.let { drawInstantNextBoard(canvas, shapeNum, it) }
         nextSurfaceHolder!!.unlockCanvasAndPost(canvas)
+    }
+
+    override fun clearRows(totalNumOfRows: Int, curNumOfRows: Int) {
+        runOnUiThread(java.lang.Runnable {
+            lines?.text = totalNumOfRows.toString()
+            currentScore += when(curNumOfRows) {
+                1 -> 100
+                2 -> 200
+                3 -> 400
+                else -> 800
+            }
+            score?.text = currentScore.toString()
+            level?.text = when(currentScore) {
+                in 2000..3999 -> "2"
+                in 4000..5999 -> "2"
+                in 6000..7999 -> "2"
+                in 8000..9999 -> "2"
+                in 10000..11999 -> "2"
+                in 12000..13999 -> "2"
+                in 14000..15999 -> "2"
+                in 16000..17999 -> "2"
+                in 18000..19999 -> "2"
+                in 20000..21999 -> "2"
+                else -> "1"
+            }
+        })
     }
 
 

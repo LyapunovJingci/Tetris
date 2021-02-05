@@ -1,7 +1,7 @@
 package com.lyapunov.tetris.game;
 import com.lyapunov.tetris.blocks.Shape;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 public class BlockGenerator {
     /**
@@ -20,16 +20,17 @@ public class BlockGenerator {
      */
     public Shape generateBlock() {
         //generate a random number within range [1, 7]
+        Random rand = new Random();
         if (nextRand == 0) {
-            nextRand = ThreadLocalRandom.current().nextInt(1, 8);
-            int currentRand = ThreadLocalRandom.current().nextInt(1, 8);
+            nextRand = rand.nextInt(7) + 1;
+            int currentRand = rand.nextInt(7) + 1;
             Shape shape = BlockFactory.getBlockFactory().getShape(currentRand);
             rotationHelper(currentRand, shape.getShape());
             return shape;
         }
         Shape shape =  BlockFactory.getBlockFactory().getShape(nextRand);
         rotationHelper(nextRand, shape.getShape());
-        nextRand = ThreadLocalRandom.current().nextInt(1, 8);
+        nextRand = rand.nextInt(7) + 1;
         return shape;
     }
 

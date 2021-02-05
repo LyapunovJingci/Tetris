@@ -3,7 +3,7 @@ package com.lyapunov.tetris.game;
 import android.util.Log;
 import com.lyapunov.tetris.blocks.Shape;
 import com.lyapunov.tetris.constants.BoardInfo;
-import com.lyapunov.tetris.model.Line;
+import com.lyapunov.tetris.viewmodel.LineViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ public class Board {
     private volatile int[][] boardMatrix = new int[BoardInfo.BOARD_HEIGHT + 2][BoardInfo.BOARD_WIDTH];
     private List<BoardObserver> observers = new ArrayList<>();
     private static final int initialPosition = 3;
+    private int clearedLines = 0;
     /**
      * Singleton Pattern - Only one board should exist within a game
      */
@@ -104,7 +105,7 @@ public class Board {
         }
 
         leftTop.set(1, leftTop.get(1) + 1);
-        printBoard("drop");
+        //printBoard("drop");
         notifyObservers();
         return leftTop;
     }
@@ -211,7 +212,7 @@ public class Board {
         }
 
         leftTop.set(0, leftTop.get(0) - 1);
-        printBoard("left");
+        //printBoard("left");
         notifyObservers();
         return leftTop;
     }
@@ -324,6 +325,8 @@ public class Board {
         for (int j = 0; j < BoardInfo.BOARD_WIDTH; j++) {
             boardMatrix[0][j] = 0;
         }
+        clearedLines += fullRows.size();
+        notifyObserversClear(clearedLines, fullRows.size());
     }
 
     /**
@@ -380,6 +383,12 @@ public class Board {
                 System.arraycopy(shapeMatrix[i], 0, matrix[i + 1], 1, shapeMatrix.length);
             }
             observer.generateNew(matrix);
+        }
+    }
+
+    protected void notifyObserversClear(int numOfRows, int currentNumOfRows) {
+        for (BoardObserver observer: observers) {
+            observer.clearRows(numOfRows, currentNumOfRows);
         }
     }
 
