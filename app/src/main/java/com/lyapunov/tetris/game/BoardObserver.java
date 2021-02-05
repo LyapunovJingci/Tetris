@@ -1,9 +1,9 @@
 package com.lyapunov.tetris.game;
 
 public interface BoardObserver {
-    void update();
+    void updateCanvas();
     void generateNew(int[][] shapeNum);
-    void clearRows(int numOfRows, int currentNumOfRows);
+    void updateGameInfo(int totalClearedLines, int score, int level);
     void gameEnd();
     void gameRestart();
 }

@@ -30,9 +30,8 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         private var lastClickRight: Long = 0
         private var lastClickRotate: Long = 0
         private var lines: TextView? = null
-        private var level: TextView? = null
-        private var score: TextView? = null
-        private var currentScore: Int = 0
+        private var levels: TextView? = null
+        private var scores: TextView? = null
         private var builder: AlertDialog.Builder? = null
         private lateinit var binding: ActivityMainBinding
 
@@ -60,35 +59,29 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         paintZ.setARGB(255, 113, 112, 115)
         paintArray = arrayOf(paintI, paintJ, paintL, paintO, paintS, paintT, paintZ)
 
-        //Attach listener
-        Board.getBoard().attach(this)
-        //Initialize new game, need refactor later
-        val game: Game = Game(1)
-        game.start()
-
         binding.rotateButton.setOnClickListener {
             if (System.currentTimeMillis() - lastClickRotate > 300) {
-                game.rotateBlock()
+                Game.getGame().rotateBlock()
             }
             lastClickRotate = System.currentTimeMillis()
         }
 
         binding.leftButton.setOnClickListener {
             if (System.currentTimeMillis() - lastClickLeft > 300) {
-                game.moveBlockLeft()
+                Game.getGame().moveBlockLeft()
             }
             lastClickLeft = System.currentTimeMillis()
         }
 
         binding.rightButton.setOnClickListener {
             if (System.currentTimeMillis() - lastClickRight > 300) {
-                game.moveBlockRight()
+                Game.getGame().moveBlockRight()
             }
             lastClickRight = System.currentTimeMillis()
         }
         lines = binding.RealTimeLines
-        level = binding.LevelRealTime
-        score = binding.ScoreRealTime
+        levels = binding.LevelRealTime
+        scores = binding.ScoreRealTime
         surfaceHolder = binding.board.holder
         surfaceHolder?.addCallback(object: SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
@@ -147,8 +140,7 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         builder?.apply {
             setPositiveButton("Restart",
                 DialogInterface.OnClickListener { dialog, id ->
-                    val game2: Game = Game(2)
-                    game2.start()
+                    Game.getGame().start()
                 })
             setNegativeButton("Back",
                 DialogInterface.OnClickListener { dialog, id ->
@@ -159,6 +151,10 @@ class MainActivity : AppCompatActivity(), BoardObserver {
 
         // Create the AlertDialog
         builder!!.create()
+
+        //Attach listener
+        Game.getGame().attach(this)
+        Game.getGame().start()
 
     }
 
@@ -231,7 +227,7 @@ class MainActivity : AppCompatActivity(), BoardObserver {
     /**
      * Get board update
      */
-    override fun update() {
+    override fun updateCanvas() {
         val matrix: Array<IntArray> = Board.getBoard().boardMatrix
         val canvas = surfaceHolder!!.lockCanvas()
         drawInitialBoard(canvas)
@@ -249,29 +245,11 @@ class MainActivity : AppCompatActivity(), BoardObserver {
         nextSurfaceHolder!!.unlockCanvasAndPost(canvas)
     }
 
-    override fun clearRows(totalNumOfRows: Int, curNumOfRows: Int) {
-        runOnUiThread {
-            lines?.text = totalNumOfRows.toString()
-            currentScore += when (curNumOfRows) {
-                1 -> 100
-                2 -> 200
-                3 -> 400
-                else -> 800
-            }
-            score?.text = currentScore.toString()
-            level?.text = when (currentScore) {
-                in 2000..3999 -> "2"
-                in 4000..5999 -> "2"
-                in 6000..7999 -> "2"
-                in 8000..9999 -> "2"
-                in 10000..11999 -> "2"
-                in 12000..13999 -> "2"
-                in 14000..15999 -> "2"
-                in 16000..17999 -> "2"
-                in 18000..19999 -> "2"
-                in 20000..21999 -> "2"
-                else -> "1"
-            }
+    override fun updateGameInfo(totalClearedLines: Int, score: Int, level: Int) {
+        runOnUiThread{
+            lines?.text = totalClearedLines.toString()
+            scores?.text = score.toString()
+            levels?.text = level.toString()
         }
     }
 
@@ -283,8 +261,8 @@ class MainActivity : AppCompatActivity(), BoardObserver {
     override fun gameRestart() {
         runOnUiThread {
             lines?.text = "0"
-            score?.text = "0"
-            level?.text = "1"
+            scores?.text = "0"
+            levels?.text = "1"
         }
     }
 

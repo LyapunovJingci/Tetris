@@ -11,9 +11,8 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Board {
     private volatile int[][] boardMatrix = new int[BoardInfo.BOARD_HEIGHT + 2][BoardInfo.BOARD_WIDTH];
-    private List<BoardObserver> observers = new ArrayList<>();
     private static final int initialPosition = 3;
-    private int clearedLines = 0;
+    private AtomicInteger clearedLines = new AtomicInteger(0);
     /**
      * Singleton Pattern - Only one board should exist within a game
      */
@@ -44,9 +43,7 @@ public class Board {
                 boardMatrix[i][j] = 0;
             }
         }
-        clearedLines = 0;
-        notifyObservers();
-        notifyObserversRestart();
+        clearedLines.set(0);
     }
 
     /**
@@ -61,6 +58,7 @@ public class Board {
         int size = shape.getMatrixSize();
         int[][] shapeMatrix = shape.getShape();
 
+        // check validity
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (shapeMatrix[i][j] == 0) {
@@ -69,22 +67,22 @@ public class Board {
                 if (boardMatrix[i][initialPosition + j] != 0) {
                     AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
                     leftTop.set(0, -100);
-                    notifyObserversEnd();
                     return leftTop;
                 }
             }
         }
 
+        // perform adding block
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 boardMatrix[i][initialPosition + j] += shape.getShape()[i][j];
             }
         }
+
+        // return coordinate of leftTop corner
         AtomicIntegerArray leftTop = new AtomicIntegerArray(2);
         leftTop.set(0, initialPosition);
         leftTop.set(1, 0);
-        notifyObservers();
-        notifyObserversNew(BlockGenerator.getBlockGenerator().getNextBlock().getShape());
         return leftTop;
     }
 
@@ -135,7 +133,6 @@ public class Board {
 
         leftTop.set(1, leftTop.get(1) + 1);
         //printBoard("drop");
-        notifyObservers();
         return leftTop;
     }
 
@@ -224,7 +221,6 @@ public class Board {
             }
         }
 
-
         //perform movement
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -242,7 +238,6 @@ public class Board {
 
         leftTop.set(0, leftTop.get(0) - 1);
         //printBoard("left");
-        notifyObservers();
         return leftTop;
     }
 
@@ -312,7 +307,6 @@ public class Board {
 
         leftTop.set(0, leftTop.get(0) + 1);
         //printBoard("right");
-        notifyObservers();
         return leftTop;
     }
 
@@ -338,6 +332,8 @@ public class Board {
         }
         if (fullRows.size() != 0) {
             clearRow(fullRows);
+        } else {
+            clearedLines.set(0);
         }
     }
 
@@ -354,8 +350,15 @@ public class Board {
         for (int j = 0; j < BoardInfo.BOARD_WIDTH; j++) {
             boardMatrix[0][j] = 0;
         }
-        clearedLines += fullRows.size();
-        notifyObserversClear(clearedLines, fullRows.size());
+        clearedLines.set(fullRows.size());
+    }
+
+    /**
+     * Getter of number of cleared rows in this block dropping turn
+     * @return number of cleared rows [0, 4]
+     */
+    public int getClearedLines() {
+        return clearedLines.get();
     }
 
     /**
@@ -370,68 +373,5 @@ public class Board {
             Log.d(info, builder.toString());
         }
     }
-
-    /**
-     * Attach observers to the board
-     * @param observer MainActivity (updating UI)
-     */
-    public void attach(BoardObserver observer) {
-        observers.add(observer);
-    }
-
-    /**
-     * Detach observers
-     * @param observer currently no usage
-     */
-    public void detach(BoardObserver observer) {
-        observers.remove(observer);
-    }
-
-    /**
-     * Notify observers that the status of the board has changed
-     * MainActivity (updating UI)
-     */
-    protected void notifyObservers() {
-        for(BoardObserver observer : observers){
-            observer.update();
-        }
-    }
-
-    /**
-     * Notify observers that a new block is generating, its time to update the next_block board
-     * @param shapeMatrix the shape of next block
-     */
-    protected void notifyObserversNew(int[][] shapeMatrix) {
-        for(BoardObserver observer : observers){
-            if (shapeMatrix.length == 4) {
-                observer.generateNew(shapeMatrix);
-                return;
-            }
-            int[][] matrix = new int[4][4];
-            for (int i = 0; i < shapeMatrix.length; i++) {
-                System.arraycopy(shapeMatrix[i], 0, matrix[i + 1], 1, shapeMatrix.length);
-            }
-            observer.generateNew(matrix);
-        }
-    }
-
-    protected void notifyObserversClear(int numOfRows, int currentNumOfRows) {
-        for (BoardObserver observer: observers) {
-            observer.clearRows(numOfRows, currentNumOfRows);
-        }
-    }
-
-    protected void notifyObserversEnd() {
-        for (BoardObserver observer: observers) {
-            observer.gameEnd();
-        }
-    }
-
-    protected void notifyObserversRestart() {
-        for (BoardObserver observer: observers) {
-            observer.gameRestart();
-        }
-    }
-
 
 }
