@@ -1,7 +1,6 @@
 package com.lyapunov.tetris.game;
 
 import com.lyapunov.tetris.blocks.Shape;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -12,7 +11,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 public class Game {
     Shape currentBlock = null;
     private List<GameObserver> observers = new ArrayList<>();
-    private volatile int totalCleardLines = 0;
+    private volatile int totalClearedLines = 0;
     private volatile int level = 1;
     private volatile int score = 0;
     private Timer dropTimer;
@@ -37,7 +36,10 @@ public class Game {
             leftTop = Board.getBoard().moveBlockLeft(currentBlock, leftTop, blockStatus);
             notifyObserversUpdate();
         });
-
+        dropThread = new Thread(() -> {
+            leftTop = Board.getBoard().dropBlock(currentBlock, leftTop, blockStatus);
+            notifyObserversUpdate();
+        });
         rotateThread = new Thread(() -> {
             Board.getBoard().rotateBlock(currentBlock, leftTop, blockStatus);
             if (blockStatus.get() == 3) {
@@ -79,22 +81,22 @@ public class Game {
                 notifyObserversUpdate();
             }
 
-        }, 999, 200);
+        }, 999, 1000);
     }
 
     private void updateGameInfo(int clearedLines) {
         if (clearedLines == 0) {
             return;
         }
-        totalCleardLines += clearedLines;
+        totalClearedLines += clearedLines;
         score += ScoreCounter.getScoreCounter().lineToScore(clearedLines);
         level = LevelCounter.getLevelCounter().scoreToLevel(score);
-        notifyObserversClear(totalCleardLines, score, level);
+        notifyObserversClear(totalClearedLines, score, level);
     }
 
     public void end() {
         dropTimer.cancel();
-        totalCleardLines = 0;
+        totalClearedLines = 0;
         level = 1;
         score = 0;
         currentBlock = null;
@@ -171,6 +173,17 @@ public class Game {
     }
 
 
+    public synchronized void moveBlockDown() {
+        if (leftTop.get(0) < -2 || leftTop.get(1) > 15) {
+            return;
+        }
+        if (!dropThreadStarted) {
+            dropThread.start();
+            dropThreadStarted = true;
+        }
+        dropThread.run();
+    }
+
     /**
      * Attach observers to the board
      * @param observer MainActivity (updating UI)
@@ -227,9 +240,4 @@ public class Game {
         }
     }
 
-    protected void notifyObserversRestart() {
-        for (GameObserver observer: observers) {
-            observer.gameRestart();
-        }
-    }
 }

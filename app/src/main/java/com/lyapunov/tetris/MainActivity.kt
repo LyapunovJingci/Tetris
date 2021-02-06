@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import com.lyapunov.tetris.databinding.ActivityMainBinding
 import com.lyapunov.tetris.game.GameObserver
 import com.lyapunov.tetris.game.Game
+import com.lyapunov.tetris.constants.BlockColorTheme
 
 class MainActivity : AppCompatActivity(), GameObserver {
         private var surfaceHolder: SurfaceHolder? = null
@@ -27,11 +28,13 @@ class MainActivity : AppCompatActivity(), GameObserver {
         private var lastClickLeft: Long = 0
         private var lastClickRight: Long = 0
         private var lastClickRotate: Long = 0
+        private var lastClickDown: Long = 0
         private var lines: TextView? = null
         private var levels: TextView? = null
         private var scores: TextView? = null
-        private var builder: AlertDialog.Builder? = null
+        private var alertBuilder: AlertDialog.Builder? = null
         private lateinit var binding: ActivityMainBinding
+        private var themeName: String = "ESPRESSO"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,43 +43,34 @@ class MainActivity : AppCompatActivity(), GameObserver {
         val view = binding.root
         setContentView(view)
 
-        // Initialize colors of each block
-        val paintI: Paint = Paint()
-        paintI.setARGB(255, 4, 125, 104)
-        val paintJ: Paint = Paint()
-        paintJ.setARGB(255, 193, 215, 48)
-        val paintL: Paint = Paint()
-        paintL.setARGB(255, 1, 43, 92)
-        val paintO: Paint = Paint()
-        paintO.setARGB(253, 0, 181, 204)
-        val paintS: Paint = Paint()
-        paintS.setARGB(255, 253, 185, 19)
-        val paintT: Paint = Paint()
-        paintT.setARGB(255, 244, 121, 31)
-        val paintZ: Paint = Paint()
-        paintZ.setARGB(255, 113, 112, 115)
-        paintArray = arrayOf(paintI, paintJ, paintL, paintO, paintS, paintT, paintZ)
-
+        setPaint()
         binding.rotateButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickRotate > 100) {
+            if (System.currentTimeMillis() - lastClickRotate > 200) {
                 Game.getGame().rotateBlock()
             }
             lastClickRotate = System.currentTimeMillis()
         }
 
         binding.leftButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickLeft > 100) {
+            if (System.currentTimeMillis() - lastClickLeft > 200) {
                 Game.getGame().moveBlockLeft()
             }
             lastClickLeft = System.currentTimeMillis()
         }
 
         binding.rightButton.setOnClickListener {
-            if (System.currentTimeMillis() - lastClickRight > 100) {
+            if (System.currentTimeMillis() - lastClickRight > 200) {
                 Game.getGame().moveBlockRight()
             }
             lastClickRight = System.currentTimeMillis()
         }
+
+        binding.downButton.setOnClickListener {
+            if (System.currentTimeMillis() - lastClickDown > 200) {
+                Game.getGame().moveBlockDown()
+            }
+                lastClickDown = System.currentTimeMillis()
+            }
         lines = binding.RealTimeLines
         levels = binding.LevelRealTime
         scores = binding.ScoreRealTime
@@ -133,9 +127,9 @@ class MainActivity : AppCompatActivity(), GameObserver {
             }
 
         })
-        builder = AlertDialog.Builder(this)
-        builder!!.setTitle("Game End")
-        builder?.apply {
+        alertBuilder = AlertDialog.Builder(this)
+        alertBuilder!!.setTitle("Game End")
+        alertBuilder?.apply {
             setPositiveButton("Restart"
             ) { dialog, id ->
                 Game.getGame().end()
@@ -150,7 +144,7 @@ class MainActivity : AppCompatActivity(), GameObserver {
         }
 
         // Create the AlertDialog
-        builder!!.create()
+        alertBuilder!!.create()
 
         //Attach listener
         Game.getGame().attach(this)
@@ -171,7 +165,7 @@ class MainActivity : AppCompatActivity(), GameObserver {
      * Draw initial background and lines
      */
     private fun drawInitialBoard(canvas: Canvas) {
-        canvas.drawRGB(245,248,251)
+        canvas.drawRGB(BlockColorTheme.getTheme(themeName)[7][1], BlockColorTheme.getTheme(themeName)[7][2], BlockColorTheme.getTheme(themeName)[7][3])
         val paint: Paint = Paint()
         paint.setARGB(255,255,255,255)
         for (i in 0..10) {
@@ -204,7 +198,7 @@ class MainActivity : AppCompatActivity(), GameObserver {
      * Draw initial background and lines for the board showing next block
      */
     private fun drawInitialNextBoard(canvas: Canvas) {
-        canvas.drawRGB(245,248,251)
+        canvas.drawRGB(BlockColorTheme.getTheme(themeName)[7][1], BlockColorTheme.getTheme(themeName)[7][2], BlockColorTheme.getTheme(themeName)[7][3])
         val paint: Paint = Paint()
         paint.setARGB(255,255,255,255)
         for (i in 0..4) {
@@ -232,6 +226,26 @@ class MainActivity : AppCompatActivity(), GameObserver {
             }
         }
     }
+
+    private fun setPaint() {
+        // Initialize colors of each block
+        val paintI: Paint = Paint()
+        paintI.setARGB(BlockColorTheme.getTheme(themeName)[0][0], BlockColorTheme.getTheme(themeName)[0][1], BlockColorTheme.getTheme(themeName)[0][2], BlockColorTheme.getTheme(themeName)[0][3])
+        val paintJ: Paint = Paint()
+        paintJ.setARGB(BlockColorTheme.getTheme(themeName)[1][0], BlockColorTheme.getTheme(themeName)[1][1], BlockColorTheme.getTheme(themeName)[1][2], BlockColorTheme.getTheme(themeName)[1][3])
+        val paintL: Paint = Paint()
+        paintL.setARGB(BlockColorTheme.getTheme(themeName)[2][0], BlockColorTheme.getTheme(themeName)[2][1], BlockColorTheme.getTheme(themeName)[2][2], BlockColorTheme.getTheme(themeName)[2][3])
+        val paintO: Paint = Paint()
+        paintO.setARGB(BlockColorTheme.getTheme(themeName)[3][0], BlockColorTheme.getTheme(themeName)[3][1], BlockColorTheme.getTheme(themeName)[3][2], BlockColorTheme.getTheme(themeName)[3][3])
+        val paintS: Paint = Paint()
+        paintS.setARGB(BlockColorTheme.getTheme(themeName)[4][0], BlockColorTheme.getTheme(themeName)[4][1], BlockColorTheme.getTheme(themeName)[4][2], BlockColorTheme.getTheme(themeName)[4][3])
+        val paintT: Paint = Paint()
+        paintT.setARGB(BlockColorTheme.getTheme(themeName)[5][0], BlockColorTheme.getTheme(themeName)[5][1], BlockColorTheme.getTheme(themeName)[5][2], BlockColorTheme.getTheme(themeName)[5][3])
+        val paintZ: Paint = Paint()
+        paintZ.setARGB(BlockColorTheme.getTheme(themeName)[6][0], BlockColorTheme.getTheme(themeName)[6][1], BlockColorTheme.getTheme(themeName)[6][2], BlockColorTheme.getTheme(themeName)[6][3])
+        paintArray = arrayOf(paintI, paintJ, paintL, paintO, paintS, paintT, paintZ)
+    }
+
 
     /**
      * Get board update
@@ -264,7 +278,7 @@ class MainActivity : AppCompatActivity(), GameObserver {
 
     override fun gameEnd() {
         Log.e("Game end", "Game End")
-        runOnUiThread { builder?.show() }
+        runOnUiThread { alertBuilder?.show() }
     }
 
     override fun gameRestart() {
