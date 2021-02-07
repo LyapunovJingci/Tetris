@@ -9,10 +9,13 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import com.lyapunov.tetris.databinding.ActivityMainBinding
 import com.lyapunov.tetris.game.GameObserver
 import com.lyapunov.tetris.game.Game
 import com.lyapunov.tetris.constants.BlockColorTheme
+import com.lyapunov.tetris.database.BlockThemeManager
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), GameObserver {
         private var surfaceHolder: SurfaceHolder? = null
@@ -35,16 +38,22 @@ class MainActivity : AppCompatActivity(), GameObserver {
         private var scores: TextView? = null
         private var alertBuilder: AlertDialog.Builder? = null
         private lateinit var binding: ActivityMainBinding
-        private var themeName: String = "ESPRESSO"
+        private var themeName: String = BlockColorTheme.THEME_MODERN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.e("eee", "Create")
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
-        setPaint()
+        val blockThemeManager = BlockThemeManager(applicationContext)
+        lifecycleScope.launch {
+            themeName = if (blockThemeManager.getTheme() == null) {
+                BlockColorTheme.THEME_MODERN
+            } else {
+                blockThemeManager.getTheme()!!
+            }
+            setPaint()
+        }
         binding.rotateButton.setOnClickListener {
             if (System.currentTimeMillis() - lastClickRotate > 200) {
                 Game.getGame().rotateBlock()

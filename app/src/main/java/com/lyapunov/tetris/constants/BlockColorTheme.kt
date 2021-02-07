@@ -1,6 +1,12 @@
 package com.lyapunov.tetris.constants
 
 object BlockColorTheme {
+    const val THEME_MODERN: String = "MODERN"
+    const val THEME_MONALISA: String = "MONALISA"
+    const val THEME_BELAFONTE: String = "BELAFONTE"
+    const val THEME_ESPRESSO: String = "ESPRESSO"
+    const val THEME_SPECTRUM: String = "SPECTRUM"
+    const val THEME_RAINBOW: String = "RAINBOW"
     private val MODERN: Array<IntArray> = arrayOf(
             intArrayOf(255, 4, 125, 104),
             intArrayOf(255, 193, 215, 48),
@@ -46,12 +52,22 @@ object BlockColorTheme {
             intArrayOf(255, 96, 212, 229),
             intArrayOf(255, 51, 51, 52),
             intArrayOf(255, 247, 241, 255))
+    private val RAINBOW: Array<IntArray> = arrayOf (
+            intArrayOf(255, 219, 56, 56),
+            intArrayOf(255, 246, 97, 32),
+            intArrayOf(255, 254, 204, 48),
+            intArrayOf(255, 178, 194, 37),
+            intArrayOf(255, 52, 190, 184),
+            intArrayOf(255, 64, 164, 216),
+            intArrayOf(255, 163, 99, 217),
+            intArrayOf(255, 247, 241, 255))
     fun getTheme(themeName: String): Array<IntArray> {
         return when (themeName){
-            "MONALISA" -> MONALISA
-            "BELAFONTE" -> BELAFONTE
-            "ESPRESSO" -> ESPRESSO
-            "SPECTRUM" -> SPECTRUM
+            THEME_MONALISA -> MONALISA
+            THEME_BELAFONTE -> BELAFONTE
+            THEME_ESPRESSO -> ESPRESSO
+            THEME_SPECTRUM -> SPECTRUM
+            THEME_RAINBOW -> RAINBOW
             else -> MODERN
         }
     }

@@ -143,7 +143,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:checked="true"
             android:fontFamily="sans-serif-black"
             android:text="@string/modern" />
 
@@ -178,6 +177,14 @@
             android:layout_marginBottom="10dp"
             android:fontFamily="sans-serif-black"
             android:text="@string/spectrum" />
+
+        <RadioButton
+            android:id="@+id/radio_theme6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/rainbow" />
     </RadioGroup>
 
     <TextView
@@ -488,4 +495,81 @@
         android:background="#E9E9E7"
         app:layout_constraintStart_toEndOf="@+id/t4c6"
         app:layout_constraintTop_toBottomOf="@+id/t3c7" />
+
+    <TextView
+        android:id="@+id/t6c1"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        tools:viewBindingIgnore="true"
+        android:background="#D0222B"
+        app:layout_constraintStart_toEndOf="@+id/radioGroup"
+        app:layout_constraintTop_toBottomOf="@+id/t5c1" />
+
+    <TextView
+        android:id="@+id/t6c2"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="18dp"
+        tools:viewBindingIgnore="true"
+        android:background="#F14A1A"
+        app:layout_constraintStart_toEndOf="@+id/t6c1"
+        app:layout_constraintTop_toBottomOf="@+id/t5c2" />
+
+    <TextView
+        android:id="@+id/t6c7"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="18dp"
+        tools:viewBindingIgnore="true"
+        android:background="#9147D0"
+        app:layout_constraintStart_toEndOf="@+id/t6c6"
+        app:layout_constraintTop_toBottomOf="@+id/t5c7" />
+
+    <TextView
+        android:id="@+id/t6c3"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="18dp"
+        tools:viewBindingIgnore="true"
+        android:background="#FCC225"
+        app:layout_constraintStart_toEndOf="@+id/t6c2"
+        app:layout_constraintTop_toBottomOf="@+id/t5c3" />
+
+    <TextView
+        android:id="@+id/t6c4"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="18dp"
+        tools:viewBindingIgnore="true"
+        android:background="#A3B91D"
+        app:layout_constraintStart_toEndOf="@+id/t6c3"
+        app:layout_constraintTop_toBottomOf="@+id/t5c4" />
+
+    <TextView
+        android:id="@+id/t6c5"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="18dp"
+        tools:viewBindingIgnore="true"
+        android:background="#2FB2A9"
+        app:layout_constraintStart_toEndOf="@+id/t6c4"
+        app:layout_constraintTop_toBottomOf="@+id/t5c5" />
+
+    <TextView
+        android:id="@+id/t6c6"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="18dp"
+        tools:viewBindingIgnore="true"
+        android:background="#3492CF"
+        app:layout_constraintStart_toEndOf="@+id/t6c5"
+        app:layout_constraintTop_toBottomOf="@+id/t5c6" />
 </androidx.constraintlayout.widget.ConstraintLayout>

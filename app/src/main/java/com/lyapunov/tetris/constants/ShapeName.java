@@ -8,5 +8,4 @@ public class ShapeName {
     public static final int S_SHAPE = 5;
     public static final int T_SHAPE = 6;
     public static final int Z_SHAPE = 7;
-
 }
