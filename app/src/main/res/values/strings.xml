@@ -9,4 +9,10 @@
     <string name="next">Next</string>
     <string name="level">Level</string>
     <string name="_1">1</string>
+    <string name="modern">MODERN</string>
+    <string name="monalisa">MONALISA</string>
+    <string name="theme">Theme</string>
+    <string name="belafonte">BELAFONTE</string>
+    <string name="espresso">ESPRESSO</string>
+    <string name="spectrum">SPECTRUM</string>
 </resources>
