@@ -2,6 +2,7 @@ package com.lyapunov.tetris
 
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity(), GameObserver {
         private var lastClickRight: Long = 0
         private var lastClickRotate: Long = 0
         private var lastClickDown: Long = 0
+        private var lastClickUp: Long = 0
         private var lines: TextView? = null
         private var levels: TextView? = null
         private var scores: TextView? = null
@@ -70,7 +72,14 @@ class MainActivity : AppCompatActivity(), GameObserver {
                 Game.getGame().moveBlockDown()
             }
                 lastClickDown = System.currentTimeMillis()
+        }
+
+        binding.upButton.setOnClickListener{
+            if (System.currentTimeMillis() - lastClickUp > 200) {
+                Game.getGame().moveBlockDownFast()
             }
+            lastClickUp = System.currentTimeMillis()
+        }
         lines = binding.RealTimeLines
         levels = binding.LevelRealTime
         scores = binding.ScoreRealTime

@@ -21,10 +21,12 @@ public class Game {
     private Thread leftThread;
     private Thread rotateThread;
     private Thread dropThread;
+    private Thread fastDropThread;
     private boolean rightThreadStarted;
     private boolean leftThreadStarted;
     private boolean rotateThreadStarted;
     private boolean dropThreadStarted;
+    private boolean fastDropThreadStarted;
 
     public static Game game = new Game();
     private Game() {
@@ -38,6 +40,10 @@ public class Game {
         });
         dropThread = new Thread(() -> {
             leftTop = Board.getBoard().dropBlock(currentBlock, leftTop, blockStatus);
+            notifyObserversUpdate();
+        });
+        fastDropThread = new Thread(() -> {
+            leftTop = Board.getBoard().fastDropBlock(currentBlock, leftTop, blockStatus);
             notifyObserversUpdate();
         });
         rotateThread = new Thread(() -> {
@@ -103,6 +109,8 @@ public class Game {
         leftThread.interrupt();
         rightThread.interrupt();
         rotateThread.interrupt();
+        dropThread.interrupt();
+        fastDropThread.interrupt();
         Board.getBoard().clear();
     }
 
@@ -154,8 +162,9 @@ public class Game {
         if (!leftThreadStarted) {
             leftThread.start();
             leftThreadStarted = true;
+        } else {
+            leftThread.run();
         }
-        leftThread.run();
     }
 
     /**
@@ -168,8 +177,10 @@ public class Game {
         if (!rightThreadStarted) {
             rightThread.start();
             rightThreadStarted = true;
+        } else {
+            rightThread.run();
         }
-        rightThread.run();
+
     }
 
 
@@ -180,10 +191,24 @@ public class Game {
         if (!dropThreadStarted) {
             dropThread.start();
             dropThreadStarted = true;
+        } else {
+            dropThread.run();
         }
-        dropThread.run();
     }
 
+
+    public synchronized void moveBlockDownFast() {
+        if (leftTop.get(0) < -2 || leftTop.get(1) > 15) {
+            return;
+        }
+        if (!fastDropThreadStarted) {
+            fastDropThread.start();
+            fastDropThreadStarted = true;
+        } else {
+            fastDropThread.run();
+        }
+
+    }
     /**
      * Attach observers to the board
      * @param observer MainActivity (updating UI)

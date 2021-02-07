@@ -97,7 +97,7 @@ public class Board {
         if (shape == null) {
             return null;
         }
-        if (leftTop.get(0) == -100) {
+        if (leftTop.get(0) == -100 || leftTop.get(0) == -10) {
             return leftTop;
         }
         int size = shape.getMatrixSize();
@@ -136,6 +136,53 @@ public class Board {
         return leftTop;
     }
 
+
+    public AtomicIntegerArray fastDropBlock(Shape shape, AtomicIntegerArray leftTop, AtomicInteger status) {
+        if (shape == null) {
+            return null;
+        }
+        int size = shape.getMatrixSize();
+        int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status.get());
+
+        // perform drop
+        int dest = leftTop.get(1);
+        int cur = leftTop.get(0);
+        //Log.e("fastdrop", dest + " " + cur);
+        boolean stop = false;
+        while (dest < 20 && !stop) {
+            dest++;
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    if (currMatrix[i][j] == 0) {
+                        continue;
+                    }
+                    if (boardMatrix[dest + i][cur + j] != 0) {
+                        if (i + 1 < size && currMatrix[i + 1][j] == currMatrix[i][j]) {
+                            continue;
+                        }
+                        dest--;
+                        stop = true;
+                    }
+                }
+            }
+        }
+
+        //Log.e("fastdrop", dest + " " + cur);
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (currMatrix[i][j] == 0) {
+                    continue;
+                }
+                boardMatrix[i + leftTop.get(1)][j + leftTop.get(0)] -= currMatrix[i][j];
+                boardMatrix[i + dest][j + leftTop.get(0)] += currMatrix[i][j];
+            }
+        }
+        checkFullRow(shape, dest);
+        leftTop.set(0, -10);
+        //printBoard("fast_drop");
+        return leftTop;
+    }
     /**
      * Rotate a block by 90 degree counter-clockwise
      * @param shape shape of the current dropping block
