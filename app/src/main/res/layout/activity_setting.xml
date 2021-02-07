@@ -97,7 +97,7 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="20dp"
         android:max="14"
-        android:progress="1"
+        android:progress="0"
         app:layout_constraintEnd_toStartOf="@+id/level_instant"
         app:layout_constraintStart_toEndOf="@+id/level_title"
         app:layout_constraintTop_toTopOf="parent" />
@@ -118,13 +118,13 @@
 
     <TextView
         android:id="@+id/level_instant"
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="20dp"
         android:fontFamily="sans-serif-black"
+        android:text="@string/_1"
         android:textSize="18sp"
-        android:text="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
