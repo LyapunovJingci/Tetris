@@ -1,7 +1,5 @@
 package com.lyapunov.tetris.game;
 
-import android.util.Log;
-
 import com.lyapunov.tetris.blocks.Shape;
 import java.util.ArrayList;
 import java.util.List;
