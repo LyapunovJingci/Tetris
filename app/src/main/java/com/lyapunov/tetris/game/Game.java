@@ -97,7 +97,7 @@ public class Game {
                     blockStatus.set(0);
                 }
                 if (leftTop.get(0) == -100) {
-                    notifyObserversEnd();
+                    notifyObserversEnd(score);
                     dropTimer.cancel();
                 }
                 leftTop = dropBlock();
@@ -284,9 +284,9 @@ public class Game {
         }
     }
 
-    protected void notifyObserversEnd() {
+    protected void notifyObserversEnd(int finalScore) {
         for (GameObserver observer: observers) {
-            observer.gameEnd();
+            observer.gameEnd(finalScore);
         }
     }
 

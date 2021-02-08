@@ -1,4 +1,4 @@
-package com.lyapunov.tetris
+package com.lyapunov.tetris.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

@@ -1,11 +1,10 @@
-package com.lyapunov.tetris
+package com.lyapunov.tetris.activity
 
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -14,8 +13,10 @@ import com.lyapunov.tetris.databinding.ActivityMainBinding
 import com.lyapunov.tetris.game.GameObserver
 import com.lyapunov.tetris.game.Game
 import com.lyapunov.tetris.constants.BlockColorTheme
+import com.lyapunov.tetris.database.AppDatabase
 import com.lyapunov.tetris.database.BlockThemeManager
 import com.lyapunov.tetris.database.LevelManager
+import com.lyapunov.tetris.database.Score
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), GameObserver {
@@ -104,7 +105,6 @@ class MainActivity : AppCompatActivity(), GameObserver {
                 canvasWidth = canvas.width.toFloat()
                 lineWidth = canvasWidth / 61
                 blockWidth = lineWidth * 5
-                Log.e("data", canvasHeight.toString())
 
                 //Draw background and lines
                 drawInitialBoard(canvas)
@@ -291,17 +291,12 @@ class MainActivity : AppCompatActivity(), GameObserver {
         }
     }
 
-    override fun gameEnd() {
-        Log.e("Game end", "Game End")
-        runOnUiThread { alertBuilder?.show() }
-    }
-
-    override fun gameRestart() {
-        runOnUiThread {
-            lines?.text = "0"
-            scores?.text = "0"
-            levels?.text = "1"
+    override fun gameEnd(finalScore: Int) {
+        lifecycleScope.launch {
+            val dao = AppDatabase(application).scoreDao()
+            dao.insert(Score(finalScore))
         }
+        runOnUiThread { alertBuilder?.show() }
     }
 
 }

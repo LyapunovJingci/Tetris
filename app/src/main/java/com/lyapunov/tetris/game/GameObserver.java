@@ -4,6 +4,5 @@ public interface GameObserver {
     void updateCanvas();
     void generateNewBlock(int[][] shapeNum);
     void updateGameInfo(int totalClearedLines, int score, int level);
-    void gameEnd();
-    void gameRestart();
+    void gameEnd(int finalScore);
 }

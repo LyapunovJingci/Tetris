@@ -9,16 +9,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Tetris">
-        <activity android:name=".HighscoreActivity"></activity>
-        <activity android:name=".SettingActivity" />
-        <activity android:name=".InfoActivity" />
-        <activity android:name=".StartActivity" >
+        <activity android:name=".activity.HighscoreActivity"></activity>
+        <activity android:name=".activity.SettingActivity" />
+        <activity android:name=".activity.InfoActivity" />
+        <activity android:name=".activity.StartActivity" >
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"/>
+        <activity android:name=".activity.MainActivity"/>
     </application>
 
 </manifest>

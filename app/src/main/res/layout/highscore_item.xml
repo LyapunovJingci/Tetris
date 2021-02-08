@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp"
+    android:elevation="10dp"
+    android:padding="5dp"
+    android:layout_marginTop="10dp"
+    app:cardBackgroundColor="@color/accent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingStart="20dp"
+            android:fontFamily="sans-serif-black"
+            android:textColor="@color/primary_var"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:paddingVertical="4dp"
+            android:id="@+id/rank">
+        </TextView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-black"
+            android:textColor="@color/primary"
+            android:layout_weight="3"
+            android:textSize="24sp"
+            android:id="@+id/score_rank"
+            android:paddingVertical="4dp">
+        </TextView>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

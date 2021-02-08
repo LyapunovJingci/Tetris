@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:backgroundTint="@color/accent"
     android:background="@color/accent"
-    tools:context=".MainActivity">
+    tools:context=".activity.MainActivity">
 
     <SurfaceView
         android:id="@+id/board"

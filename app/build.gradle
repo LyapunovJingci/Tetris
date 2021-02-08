@@ -57,6 +57,17 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
 
+    // Room components
+    implementation "androidx.room:room-ktx:2.2.6"
+    kapt "androidx.room:room-compiler:2.2.6"
+    androidTestImplementation "androidx.room:room-testing:2.2.6"
+
+    // Card View
+    implementation "androidx.cardview:cardview:1.0.0"
+
     //Lottie
     implementation "com.airbnb.android:lottie:3.6.0"
+
+    //Konfetti
+    implementation 'nl.dionsegijn:konfetti:1.2.6'
 }
