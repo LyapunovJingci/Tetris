@@ -33,11 +33,11 @@ This demo follows MVP architectual pattern.
 <img src="Screenshot/structure.png" width="95%">
 
 ## 📝Library Usage
-* Room 
-* DataStore
-* Coroutines
-* Lottie
-* Konfetti
+* [Room](https://developer.android.com/training/data-storage/room)
+* [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) 
+* [Coroutines](https://developer.android.com/kotlin/coroutines)
+* [Lottie](https://github.com/airbnb/lottie-android)
+* [Konfetti](https://github.com/DanielMartinus/Konfetti)
 
 ## 🎈Screenshots
 
