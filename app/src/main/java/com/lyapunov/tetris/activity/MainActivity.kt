@@ -292,9 +292,11 @@ class MainActivity : AppCompatActivity(), GameObserver {
     }
 
     override fun gameEnd(finalScore: Int) {
-        lifecycleScope.launch {
-            val dao = AppDatabase(application).scoreDao()
-            dao.insert(Score(finalScore))
+        if (finalScore > 0) {
+            lifecycleScope.launch {
+                val dao = AppDatabase(application).scoreDao()
+                dao.insert(Score(finalScore))
+            }
         }
         runOnUiThread { alertBuilder?.show() }
     }
