@@ -6,7 +6,11 @@ This is a clone of the evergreen video game Tetris on Android platform developed
 
 
 ## 📝Library Usage
-
+* Room 
+* DataStore
+* Coroutine
+* Lottie
+* Konfetti
 
 ## 🎈Screenshots
 
