@@ -7,7 +7,7 @@ public class LevelCounter {
         return levelCounter;
     }
 
-    public int scoreToLevel(int score) {
-        return score / 2000 + 1;
+    public int lineToLevel(int line) {
+        return line / 20;
     }
 }

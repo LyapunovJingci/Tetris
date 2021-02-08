@@ -6,6 +6,7 @@ import android.widget.SeekBar
 import androidx.lifecycle.lifecycleScope
 import com.lyapunov.tetris.constants.BlockColorTheme
 import com.lyapunov.tetris.database.BlockThemeManager
+import com.lyapunov.tetris.database.LevelManager
 import com.lyapunov.tetris.databinding.ActivitySettingBinding
 import kotlinx.coroutines.launch
 
@@ -17,19 +18,30 @@ class SettingActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
         val blockThemeManager = BlockThemeManager(applicationContext)
+        val levelManager = LevelManager(applicationContext)
+        lifecycleScope.launch {
+            if (levelManager.getInitialLevel() == null) {
+                binding.seekBar.progress = 0
+                binding.levelInstant.text = "1"
+            } else {
+                binding.seekBar.progress = levelManager.getInitialLevel()!! - 1
+                binding.levelInstant.text = levelManager.getInitialLevel()!!.toString()
+            }
+        }
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 binding.levelInstant.text = (progress + 1).toString()
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
 
             }
-
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
+                lifecycleScope.launch {
+                    if (seekBar != null) {
+                        levelManager.setInitalLevel(seekBar.progress + 1)
+                    }
+                }
             }
-
         })
         lifecycleScope.launch {
             when (blockThemeManager.getTheme()) {

@@ -15,6 +15,7 @@ import com.lyapunov.tetris.game.GameObserver
 import com.lyapunov.tetris.game.Game
 import com.lyapunov.tetris.constants.BlockColorTheme
 import com.lyapunov.tetris.database.BlockThemeManager
+import com.lyapunov.tetris.database.LevelManager
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), GameObserver {
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity(), GameObserver {
         private var nextCanvasHeight: Float = 0F
         private var nextCanvasWidth: Float = 0F
 
+        private var initialLevel: Int = 1
         private var lastClickLeft: Long = 0
         private var lastClickRight: Long = 0
         private var lastClickRotate: Long = 0
@@ -46,13 +48,14 @@ class MainActivity : AppCompatActivity(), GameObserver {
         val view = binding.root
         setContentView(view)
         val blockThemeManager = BlockThemeManager(applicationContext)
+        val levelManager = LevelManager(applicationContext)
         lifecycleScope.launch {
-            themeName = if (blockThemeManager.getTheme() == null) {
-                BlockColorTheme.THEME_MODERN
-            } else {
-                blockThemeManager.getTheme()!!
-            }
+            blockThemeManager.getTheme().let { themeName = blockThemeManager.getTheme().toString() }
             setPaint()
+            levelManager.getInitialLevel().let { initialLevel = levelManager.getInitialLevel()!! }
+            binding.LevelRealTime.text = initialLevel.toString()
+            Game.getGame().setInitialLevel(initialLevel)
+            Game.getGame().start()
         }
         binding.rotateButton.setOnClickListener {
             if (System.currentTimeMillis() - lastClickRotate > 200) {
@@ -108,17 +111,12 @@ class MainActivity : AppCompatActivity(), GameObserver {
                 surfaceHolder!!.unlockCanvasAndPost(canvas)
             }
 
-            override fun surfaceChanged(
-                    holder: SurfaceHolder,
-                    format: Int,
-                    width: Int,
-                    height: Int
-            ) {
-                    Log.d("dddffff", "changed")
+            override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
-                Log.d("dddfff", "destroyed")
+
             }
 
         })
@@ -136,11 +134,11 @@ class MainActivity : AppCompatActivity(), GameObserver {
             }
 
             override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                Log.d("dddffff", "changed")
+
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
-                Log.d("dddfff", "destroyed")
+
             }
 
         })
@@ -150,6 +148,7 @@ class MainActivity : AppCompatActivity(), GameObserver {
             setPositiveButton("Restart"
             ) { dialog, id ->
                 Game.getGame().end()
+                Game.getGame().setInitialLevel(initialLevel)
                 Game.getGame().start()
             }
             setNegativeButton("Back"
@@ -165,7 +164,6 @@ class MainActivity : AppCompatActivity(), GameObserver {
 
         //Attach listener
         Game.getGame().attach(this)
-        Game.getGame().start()
 
     }
 

@@ -1,5 +1,7 @@
 package com.lyapunov.tetris.game;
 
+import android.util.Log;
+
 import com.lyapunov.tetris.blocks.Shape;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 public class Game {
     Shape currentBlock = null;
     private List<GameObserver> observers = new ArrayList<>();
+    private int initialLevel = 1;
     private volatile int totalClearedLines = 0;
     private volatile int level = 1;
     private volatile int score = 0;
@@ -22,6 +25,7 @@ public class Game {
     private Thread rotateThread;
     private Thread dropThread;
     private Thread fastDropThread;
+    private boolean levelUp = false;
     private boolean rightThreadStarted;
     private boolean leftThreadStarted;
     private boolean rotateThreadStarted;
@@ -60,6 +64,12 @@ public class Game {
         return game;
     }
 
+
+    public void setInitialLevel(int initialLevel) {
+        this.initialLevel = initialLevel;
+        level = initialLevel;
+    }
+
     /**
      * Start a round of new game
      * 1. generate new block
@@ -67,11 +77,21 @@ public class Game {
      * Need refactor later
      */
     public void start() {
+        notifyObserversClear(0, 0, initialLevel);
+        scheduleTimer();
+    }
+
+    private void scheduleTimer() {
         dropTimer = new Timer();
-        notifyObserversClear(0, 0, 1);
+        int period = (20 - level) * 50;
         dropTimer.scheduleAtFixedRate(new TimerTask(){
             @Override
             public void run(){
+                if (levelUp) {
+                    dropTimer.cancel();
+                    levelUp = false;
+                    scheduleTimer();
+                }
                 if (currentBlock == null) {
                     leftTop = generateNewBlock();
                     blockStatus.set(0);
@@ -87,7 +107,7 @@ public class Game {
                 notifyObserversUpdate();
             }
 
-        }, 999, 1000);
+        }, period / 3, period);
     }
 
     private void updateGameInfo(int clearedLines) {
@@ -96,14 +116,19 @@ public class Game {
         }
         totalClearedLines += clearedLines;
         score += ScoreCounter.getScoreCounter().lineToScore(clearedLines);
-        level = LevelCounter.getLevelCounter().scoreToLevel(score);
+        int newLevel = LevelCounter.getLevelCounter().lineToLevel(totalClearedLines);
+        if (initialLevel + newLevel > level) {
+            levelUp = true;
+        }
+        level = initialLevel + newLevel;
         notifyObserversClear(totalClearedLines, score, level);
     }
 
     public void end() {
+        levelUp = false;
         dropTimer.cancel();
         totalClearedLines = 0;
-        level = 1;
+        level = initialLevel;
         score = 0;
         currentBlock = null;
         leftThread.interrupt();

@@ -190,6 +190,9 @@ public class Board {
      * @param status rotation status of the current block
      */
     public synchronized void rotateBlock(Shape shape, AtomicIntegerArray leftTop, AtomicInteger status) {
+        if (shape == null) {
+            return;
+        }
         int[][] currMatrix = RotationHandler.getRotationHandler().rotationHash.get(shape.getShapeCode()).get(status.get());
         int newStatus = status.get() + 1;
         if (newStatus == 4) {
