@@ -28,13 +28,14 @@ Initial level could be changed in the setting screen.
 **Speed**          
 A block would move down 1 unit per second in level 1. Droping speed would increasing by 0.05s for every level up.        
 
-## 🧐Features 
-
+## 🧐Design 
+This demo follows MVP architectual pattern.
+<img src="Screenshot/structure.png" width="95%">
 
 ## 📝Library Usage
 * Room 
 * DataStore
-* Coroutine
+* Coroutines
 * Lottie
 * Konfetti
 
