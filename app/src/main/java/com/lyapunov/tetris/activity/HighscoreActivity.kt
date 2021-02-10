@@ -16,7 +16,6 @@ import nl.dionsegijn.konfetti.models.Size
 
 class HighscoreActivity : AppCompatActivity() {
 
-//    private var scoreList = mutableListOf<Score>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_highscore)

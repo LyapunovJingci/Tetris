@@ -1,11 +1,13 @@
 package com.lyapunov.tetris.activity
 
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.SurfaceHolder
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +44,10 @@ class MainActivity : AppCompatActivity(), GameObserver {
         private var alertBuilder: AlertDialog.Builder? = null
         private lateinit var binding: ActivityMainBinding
         private var themeName: String = BlockColorTheme.THEME_MODERN
+        private lateinit var lineAnimator: ObjectAnimator
+        private lateinit var scoreAnimator: ObjectAnimator
+        private lateinit var levelAnimator: ObjectAnimator
+        private val ROTATEDURATION: Long = 1000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,13 +152,13 @@ class MainActivity : AppCompatActivity(), GameObserver {
         alertBuilder!!.setTitle("Game End")
         alertBuilder?.apply {
             setPositiveButton("Restart"
-            ) { dialog, id ->
+            ) { _, _ ->
                 Game.getGame().end()
                 Game.getGame().setInitialLevel(initialLevel)
                 Game.getGame().start()
             }
             setNegativeButton("Back"
-            ) { dialog, id ->
+            ) { _, _ ->
                 Game.getGame().end()
                 val intent = Intent(this@MainActivity, StartActivity::class.java)
                 startActivity(intent)
@@ -164,6 +170,12 @@ class MainActivity : AppCompatActivity(), GameObserver {
 
         //Attach listener
         Game.getGame().attach(this)
+        lineAnimator = ObjectAnimator.ofFloat(lines, View.ROTATION_X, -360f, 0f)
+        scoreAnimator = ObjectAnimator.ofFloat(scores, View.ROTATION_X, -360f, 0f)
+        levelAnimator = ObjectAnimator.ofFloat(levels, View.ROTATION_X, -360f, 0f)
+        lineAnimator.duration = ROTATEDURATION
+        scoreAnimator.duration = ROTATEDURATION
+        levelAnimator.duration = ROTATEDURATION
 
     }
 
@@ -285,9 +297,18 @@ class MainActivity : AppCompatActivity(), GameObserver {
 
     override fun updateGameInfo(totalClearedLines: Int, score: Int, level: Int) {
         runOnUiThread{
-            lines?.text = totalClearedLines.toString()
-            scores?.text = score.toString()
-            levels?.text = level.toString()
+            if (lines?.text != totalClearedLines.toString()) {
+                lineAnimator.start()
+                lines?.text = totalClearedLines.toString()
+            }
+            if (scores?.text != score.toString()) {
+                scoreAnimator.start()
+                scores?.text = score.toString()
+            }
+            if (levels?.text != level.toString()) {
+                levelAnimator.start()
+                levels?.text = level.toString()
+            }
         }
     }
 
